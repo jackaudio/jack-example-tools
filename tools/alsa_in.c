@@ -48,6 +48,7 @@ double offset_integral = 0;
 
 // ------------------------------------------------------ commandline parameters
 
+const char* alsa_device = "hw:0";
 int sample_rate = 0;				 /* stream rate */
 int num_channels = 2;				 /* count of channels */
 int period_size = 1024;
@@ -72,7 +73,6 @@ volatile int output_new_delay = 0;
 volatile float output_offset = 0.0;
 volatile float output_integral = 0.0;
 volatile float output_diff = 0.0;
-volatile int running_freewheel = 0;
 
 snd_pcm_uframes_t real_buffer_size;
 snd_pcm_uframes_t real_period_size;
@@ -282,7 +282,7 @@ static int set_swparams(snd_pcm_t *handle, snd_pcm_sw_params_t *swparams, int pe
 
 // ok... i only need this function to communicate with the alsa bloat api...
 
-static snd_pcm_t *open_audiofd( char *device_name, int capture, int rate, int channels, int period, int nperiods ) {
+static snd_pcm_t *open_audiofd( const char *device_name, int capture, int rate, int channels, int period, int nperiods ) {
   int err;
   snd_pcm_t *handle;
   snd_pcm_hw_params_t *hwparams;
@@ -319,8 +319,14 @@ double hann( double x )
 /**
  * The freewheel callback.
  */
-void freewheel (int starting, void* arg) {
-    running_freewheel = starting;
+void freewheel (int freewheel_starting, void* ignored_arg) {
+	if( freewheel_starting ) {
+		snd_pcm_close( alsa_handle );
+	} else {
+		alsa_handle = open_audiofd( alsa_device, 1, sample_rate, num_channels, period_size, num_periods);
+		if( alsa_handle == 0 )
+			exit(20);
+	}
 }
 
 /**
@@ -329,7 +335,7 @@ void freewheel (int starting, void* arg) {
  */
 int process (jack_nframes_t nframes, void *arg) {
 
-    if (running_freewheel) {
+    if (alsa_handle == 0) {
 	JSList *node = capture_ports;
 
 	while ( node != NULL)
@@ -627,7 +633,6 @@ sigterm_handler( int signal )
 
 int main (int argc, char *argv[]) {
     char jack_name[30] = "alsa_in";
-    char alsa_device[30] = "hw:0";
     char *server_name = NULL;
     int jack_opts = 0;
 
@@ -654,7 +659,7 @@ int main (int argc, char *argv[]) {
 		num_periods = atoi(optarg);
 		break;
 	    case 'd':
-		strcpy(alsa_device,optarg);
+		alsa_device = strdup (optarg);
 		break;
 	    case 't':
 		target_delay = atoi(optarg);
