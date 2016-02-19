@@ -180,6 +180,7 @@ main (int argc, char *argv[])
 
 	if (jack_connect (client, ports[0], jack_port_name (input_port))) {
 		fprintf (stderr, "cannot connect input ports\n");
+		exit (1);
 	}
 
 	free (ports);
@@ -211,6 +212,6 @@ main (int argc, char *argv[])
 	*/
 
 	jack_client_close (client);
-	exit (0);
+	return 0;
 }
 
