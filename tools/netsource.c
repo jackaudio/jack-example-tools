@@ -26,7 +26,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * @brief This client connects a remote slave JACK to a local JACK server assumed to be the master
  */
 
-#include "config.h"
 
 #include <stdio.h>
 #include <errno.h>
@@ -351,11 +350,21 @@ process (jack_nframes_t nframes, void *arg)
 	jack_time_t deadline = jack_get_time() + 1000000 * jack_get_buffer_size(client)/jack_get_sample_rate(client);
 	// Now loop until we get the right packet.
 	while(1) {
-	    jack_nframes_t got_frame;
-	    if ( ! netjack_poll_deadline( input_fd, deadline, jack_get_time ) )
-		break;
+		jack_nframes_t got_frame;
+#ifdef __JACK1__
+		if ( ! netjack_poll_deadline( input_fd, deadline, jack_get_time ) )
+#endif
+#ifdef __JACK2__
+		if ( ! netjack_poll_deadline( input_fd, deadline ) )
+#endif
+			break;
 
-	    packet_cache_drain_socket(packcache, input_fd, jack_get_time);
+#ifdef __JACK1__
+		packet_cache_drain_socket(packcache, input_fd, jack_get_time);
+#endif
+#ifdef __JACK2__
+		packet_cache_drain_socket(packcache, input_fd);
+#endif
 
 	    if (packet_cache_get_next_available_framecnt( packcache, framecnt - latency, &got_frame ))
 		if( got_frame == (framecnt - latency) )
@@ -364,7 +373,12 @@ process (jack_nframes_t nframes, void *arg)
     } else {
 	// normally:
 	// only drain socket.
-	packet_cache_drain_socket(packcache, input_fd, jack_get_time);
+#ifdef __JACK1__
+		packet_cache_drain_socket(packcache, input_fd, jack_get_time);
+#endif
+#ifdef __JACK2__
+		packet_cache_drain_socket(packcache, input_fd);
+#endif
     }
 
     size = packet_cache_retreive_packet_pointer( packcache, framecnt - latency, (char**)&rx_packet_ptr, rx_bufsize, &packet_recv_timestamp );

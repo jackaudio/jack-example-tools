@@ -49,13 +49,22 @@ main (int argc, char *argv[])
 
 	/* then, get the internal client handle */
 	client_name = argv[1];
-
+#ifdef __JACK1__
 	if (jack_internal_client_handle (client, client_name, &status, &intclient) != 0) {
                 if (status & JackFailure) {
                         fprintf (stderr, "client %s not found.\n", client_name);
                 }
 		exit (2);
 	}
+#endif
+
+#ifdef __JACK2__
+	intclient = jack_internal_client_handle (client, client_name, &status);
+	if (status & JackFailure) {
+		fprintf (stderr, "client %s not found.\n", client_name);
+		exit (2);
+	}
+#endif
 
 	/* now, unload the internal client */
 	status = jack_internal_client_unload (client, intclient);
