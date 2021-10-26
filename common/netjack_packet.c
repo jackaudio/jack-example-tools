@@ -79,7 +79,8 @@
 #endif
 
 #include "netjack_packet.h"
-#include "JackError.h"
+// TODO: we explicitly do not include JackError.h here, as that includes half of jack2 as well
+// #include "JackError.h"
 
 #ifdef NO_JACK_ERROR
 #define jack_error printf
