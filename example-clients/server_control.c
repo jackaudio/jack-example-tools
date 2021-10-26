@@ -53,6 +53,7 @@ static jackctl_internal_t * jackctl_server_get_internal(jackctl_server_t *server
     return NULL;
 }
 
+#ifdef __JACK1__
 static jackctl_parameter_t *
 jackctl_get_parameter(
     const JSList * parameters_list,
@@ -70,6 +71,7 @@ jackctl_get_parameter(
 
     return NULL;
 }
+#endif
 
 static void print_value(union jackctl_parameter_value value, jackctl_param_type_t type)
 {
@@ -142,7 +144,12 @@ int main(int argc, char *argv[])
     const JSList * drivers;
     const JSList * internals;
     const JSList * node_ptr;
+#ifdef __JACK1__
     sigset_t signals;
+#endif
+#ifdef __JACK2__
+    jackctl_sigmask_t * sigmask;
+#endif
     int opt, option_index;
     const char* driver_name = "dummy";
     const char* client_name = "audioadapter";
@@ -153,7 +160,12 @@ int main(int argc, char *argv[])
 		{"client", 1, 0, 'c'},
 	};
     
+#ifdef __JACK1__
  	while ((opt = getopt_long (argc, argv, options, long_options, &option_index)) != EOF) {
+#endif
+#ifdef __JACK2__
+ 	while ((opt = getopt_long (argc, argv, options, long_options, &option_index)) != -1) {
+#endif
 		switch (opt) {
 			case 'd':
 				driver_name = optarg;
@@ -167,7 +179,12 @@ int main(int argc, char *argv[])
 		}
 	}
     
+#ifdef __JACK1__
 	server = jackctl_server_create(NULL, NULL);
+#endif
+#ifdef __JACK2__
+	server = jackctl_server_create2(NULL, NULL, NULL);
+#endif
     parameters = jackctl_server_get_parameters(server);
     
     /*
@@ -207,10 +224,16 @@ int main(int argc, char *argv[])
         print_internal((jackctl_internal_t *)node_ptr->data);
         node_ptr = jack_slist_next(node_ptr);
     }
-    
+#ifdef __JACK1__
     signals = jackctl_setup_signals(0);
 
     jackctl_server_start(server, jackctl_server_get_driver(server, driver_name));
+#endif
+#ifdef __JACK2__
+    jackctl_server_open(server, jackctl_server_get_driver(server, driver_name));
+    jackctl_server_start(server);
+#endif
+
     jackctl_server_load_internal(server, jackctl_server_get_internal(server, client_name));
     
     /*
@@ -230,8 +253,15 @@ int main(int argc, char *argv[])
     
     */
       
+#ifdef __JACK1__
     jackctl_wait_signals(signals);
-     
+#endif
+#ifdef __JACK2__
+    sigmask = jackctl_setup_signals(0);
+    jackctl_wait_signals(sigmask);
+    jackctl_server_stop(server);
+    jackctl_server_close(server);
+#endif
     jackctl_server_destroy(server);
     return 0;
 }
