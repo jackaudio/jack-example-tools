@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+#
+# Script to create a symlink for an arbitrary file ($2) in a directory ($1)
+# below $MESON_INSTALL_DESTDIR_PREFIX of a specific name ($3).
+#
+# E.g. `meson_create_symlink bin test2 test` creates:
+# $MESON_INSTALL_DESTDIR_PREFIX/bin/test2 -> test
+
+set -eu
+
+ln -sv "$2" "$MESON_INSTALL_DESTDIR_PREFIX/$1/$3"

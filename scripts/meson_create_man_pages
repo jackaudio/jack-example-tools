@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+#
+# Copies over the man page templates from $MESON_SOURCE_ROOT/man to
+# $MESON_BUILD_ROOT (and renames them to a .1 suffix). If not on Linux (OS type
+# provided by $2), skips copying over alsa related man page templates.
+# Replaces VERSION (using $1) and DATE identifiers in the man pages in
+# $MESON_BUILD_ROOT.
+
+set -eu
+
+version="$1"
+os="$2"
+date="$(date '+%B %Y')"
+
+printf "Currently executing in: %s" "$(pwd)"
+
+# copy man page templates to build directory
+for man_page_in in "$MESON_SOURCE_ROOT/man/"*.0; do
+  if test "${os#*linux}" != "${os}"; then
+    cp -v "${man_page_in}" "$MESON_BUILD_ROOT/man/$(basename "${man_page_in%%0}1")"
+  else
+    if test "${man_page_in#*alsa}" == "${man_page_in}"; then
+      cp -v "${man_page_in}" "$MESON_BUILD_ROOT/man/$(basename "${man_page_in%%0}1")"
+    fi
+  fi
+done
+
+# create man pages from templates
+for man_page in "$MESON_BUILD_ROOT/man/"*.1; do
+  # sed on macOS is super ancient
+  if test "${os#*darwin}" != "${os}" || test "${os#*freebsd}" != "${os}"; then
+    sed -i '' \
+        -e "s/!VERSION!/${version}/g" \
+        -e "s/!DATE!/${date}/g" \
+        "${man_page}"
+  else
+    sed -e "s/!VERSION!/${version}/g" \
+        -e "s/!DATE!/${date}/g" \
+        -i "${man_page}"
+  fi
+done
