@@ -25,8 +25,6 @@
 #include <stdlib.h>
 #include <getopt.h>
 
-#include <config.h>
-
 #include <jack/jack.h>
 #include <jack/session.h>
 
@@ -43,7 +41,7 @@ void port_connect_callback(jack_port_id_t a, jack_port_id_t b, int connect, void
 void
 show_version (char *my_name)
 {
-	fprintf (stderr, "%s: JACK Audio Connection Kit version " VERSION "\n", my_name);
+	fprintf (stderr, "%s: JACK example tools version %s\n", my_name, __PROJECT_VERSION__);
 }
 
 void

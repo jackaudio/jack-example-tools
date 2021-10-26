@@ -7,8 +7,6 @@
 
 #include <time.h>
 
-#include <config.h>
-
 #include <jack/jack.h>
 
 char * my_name;
@@ -18,8 +16,7 @@ unsigned int wait_timeout = 1000;
 void
 show_version (void)
 {
-	fprintf (stderr, "%s: JACK Audio Connection Kit version " VERSION "\n",
-		my_name);
+	fprintf (stderr, "%s: JACK example tools version %s\n", my_name, __PROJECT_VERSION__);
 }
 
 void

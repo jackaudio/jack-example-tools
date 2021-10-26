@@ -4,8 +4,6 @@
 #include <string.h>
 #include <getopt.h>
 
-#include <config.h>
-
 #include <jack/jack.h>
 
 char * my_name;
@@ -13,8 +11,7 @@ char * my_name;
 void
 show_version (void)
 {
-	fprintf (stderr, "%s: JACK Audio Connection Kit version " VERSION "\n",
-		my_name);
+	fprintf (stderr, "%s: JACK example tools version %s\n", my_name, __PROJECT_VERSION__);
 }
 
 void
