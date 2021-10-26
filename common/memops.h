@@ -20,7 +20,7 @@
 #ifndef __jack_memops_h__
 #define __jack_memops_h__
 
-#include "types.h"
+#include <jack/types.h>
 
 #ifdef __cplusplus
 extern "C"
