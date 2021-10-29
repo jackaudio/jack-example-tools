@@ -1,0 +1,42 @@
+---
+
+name: Build on various Operating Systems
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build_arch_linux_jack1:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pacman --noconfirm -Syu alsa-lib base-devel celt meson opus readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
+      - name: Install jack1
+        run: |
+          printf "[pro-audio]\nServer = https://pkgbuild.com/~dvzrv/repos/pro-audio/\$arch\n" >> /etc/pacman.conf
+          pacman -Syy
+          pacman --noconfirm -S jack
+      - name: Build jack-example-tools
+        run: meson build && ninja -C build
+      - name: Install jack-example-tools
+        run: ninja -C build install
+  build_arch_linux_jack2:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pacman --noconfirm -Syu alsa-lib base-devel celt meson opus readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
+      - name: Install jack2
+        run: pacman --noconfirm -S jack2
+      - name: Build jack-example-tools
+        run: meson build && ninja -C build
+      - name: Install jack-example-tools
+        run: ninja -C build install
