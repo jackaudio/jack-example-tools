@@ -5,6 +5,19 @@ been tracked in the
 [example-clients](https://github.com/jackaudio/example-clients) and
 [tools](https://github.com/jackaudio/tools) repositories in the past.
 
+**WARNING**:
+
+*In its current form, this project has conflicting files with the
+[jack1](https://github.com/jackaudio/jack1) and
+[jack2](https://github.com/jackaudio/jack2) projects (when installed).
+The efforts for consolidating and eventually removing the example-clients and
+tools from both projects are tracked in
+[jackaudio/jack1#109](https://github.com/jackaudio/jack1/issues/109) and
+[jackaudio/jack2#805](https://github.com/jackaudio/jack2/issues/805).
+The installation and use of this project is therefore deemed experimental until
+both issues are resolved.
+However, testing is very much welcomed!*
+
 ## Dependencies
 
 The project requires the following dependencies:
