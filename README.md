@@ -7,5 +7,10 @@ been tracked in the
 
 ## License
 
-All files are licensed under the terms of the **GPL-2.0-or-later** (see
-[LICENSE](LICENSE)).
+All files (unless noted otherwise) are licensed under the terms of the
+**GPL-2.0-or-later** (see [LICENSE](LICENSE)).
+
+The code in [tools/zalsa](tools/zalsa) is provided via [Fons Adriansen's
+zita-ajbridge](https://kokkinizita.linuxaudio.org/linuxaudio/zita-ajbridge-doc/quickguide.html)
+and licensed under the terms of the **GPL-3.0-or-later** (see
+[tools/zalsa/LICENSE](tools/zalsa/LICENSE)).
