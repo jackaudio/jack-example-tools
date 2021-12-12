@@ -130,7 +130,7 @@ exe_jack_simdtests = executable(
 exe_jack_simple_client = executable(
   'jack_simple_client',
   sources: ['simple_client.c'],
-  dependencies: [dep_jack],
+  dependencies: [dep_jack, lib_m],
   install: true
 )
 
