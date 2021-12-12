@@ -60,7 +60,7 @@ exe_jack_freewheel = executable(
 
 exe_jack_iodelay = executable(
   'jack_iodelay',
-  sources: ['iodelay.c'],
+  sources: ['iodelay.cpp'],
   dependencies: [dep_jack, lib_m],
   install: true
 )
