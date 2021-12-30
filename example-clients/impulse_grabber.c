@@ -46,7 +46,6 @@ static void signal_handler(int sig)
 
 static int
 process (jack_nframes_t nframes, void *arg)
-
 {
 	jack_default_audio_sample_t *out = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port, nframes);
 	jack_default_audio_sample_t *in = (jack_default_audio_sample_t *) jack_port_get_buffer (input_port, nframes);
@@ -78,7 +77,7 @@ process (jack_nframes_t nframes, void *arg)
 static void
 jack_shutdown (void *arg)
 {
-    fprintf(stderr, "JACK shut down, exiting ...\n");
+	fprintf(stderr, "JACK shut down, exiting ...\n");
 	exit (1);
 }
 
@@ -92,26 +91,26 @@ main (int argc, char *argv[])
 	unsigned int i;
 	float duration = 0.0f;
 	unsigned int c_format = 0;
-        int longopt_index = 0;
+	int longopt_index = 0;
 	int c;
-        extern int optind, opterr;
-        int show_usage = 0;
-        char *optstring = "d:f:h";
-        struct option long_options[] = {
-                { "help", 1, 0, 'h' },
-                { "duration", 1, 0, 'd' },
-                { "format", 1, 0, 'f' },
-                { 0, 0, 0, 0 }
-        };
+	extern int optind, opterr;
+	int show_usage = 0;
+	char *optstring = "d:f:h";
+	struct option long_options[] = {
+		{ "help", 1, 0, 'h' },
+		{ "duration", 1, 0, 'd' },
+		{ "format", 1, 0, 'f' },
+		{ 0, 0, 0, 0 }
+	};
 
-        while ((c = getopt_long (argc, argv, optstring, long_options, &longopt_index)) != -1) {
-                switch (c) {
+	while ((c = getopt_long (argc, argv, optstring, long_options, &longopt_index)) != -1) {
+		switch (c) {
 		case 1:
 			// end of opts, but don't care
 			break;
-                case 'h':
-                        show_usage++;
-                        break;
+		case 'h':
+			show_usage++;
+			break;
 		case 'd':
 			duration = (float)atof(optarg);
 			break;
@@ -200,8 +199,8 @@ main (int argc, char *argv[])
 
 	free (ports);
 
-    /* install a signal handler to properly quits jack client */
-    signal(SIGQUIT, signal_handler);
+	/* install a signal handler to properly quits jack client */
+	signal(SIGQUIT, signal_handler);
 	signal(SIGTERM, signal_handler);
 	signal(SIGHUP, signal_handler);
 	signal(SIGINT, signal_handler);
