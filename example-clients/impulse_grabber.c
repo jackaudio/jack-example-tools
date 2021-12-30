@@ -63,7 +63,7 @@ process (jack_nframes_t nframes, void *arg)
 			grab_finished = 1;
 		}
 		for (i=0; i<nframes; i++) {
-			out[i] = 0.0f;;
+			out[i] = 0.0f;
 		}
 	} else {
 		out[0] = 1.0f;

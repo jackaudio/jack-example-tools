@@ -798,7 +798,7 @@ main(int argc, char **argv)
     if (init_semaphore == NULL) {
         error_message = get_semaphore_error();
         error_source = "create_semaphore";
-        goto destroy_connect_semaphore;;
+        goto destroy_connect_semaphore;
     }
     process_semaphore = create_semaphore(2);
     if (process_semaphore == NULL) {
