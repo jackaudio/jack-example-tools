@@ -50,33 +50,33 @@ static void usage()
 
 static int process(jack_nframes_t nframes, void *arg)
 {
-    int i,j;
-    void* port_buf = jack_port_get_buffer(output_port, nframes);
-    unsigned char* buffer;
-    jack_midi_clear_buffer(port_buf);
-    /*memset(buffer, 0, nframes*sizeof(jack_default_audio_sample_t));*/
+	int i,j;
+	void* port_buf = jack_port_get_buffer(output_port, nframes);
+	unsigned char* buffer;
+	jack_midi_clear_buffer(port_buf);
+	/*memset(buffer, 0, nframes*sizeof(jack_default_audio_sample_t));*/
 
-    for (i = 0; i < nframes; i++) {
-        for (j = 0; j < num_notes; j++) {
-            if (note_starts[j] == loop_index) {
-                if ((buffer = jack_midi_event_reserve(port_buf, i, 3))) {
-                    /* printf("wrote a note on, port buffer = 0x%x, event buffer = 0x%x\n", port_buf, buffer); */
-                    buffer[2] = 64;		/* velocity */
-                    buffer[1] = note_frqs[j];
-                    buffer[0] = 0x90;	/* note on */
-                }
-            } else if (note_starts[j] + note_lengths[j] == loop_index) {
-                if ((buffer = jack_midi_event_reserve(port_buf, i, 3))) {
-                    /* printf("wrote a note off, port buffer = 0x%x, event buffer = 0x%x\n", port_buf, buffer); */
-                    buffer[2] = 64;		/* velocity */
-                    buffer[1] = note_frqs[j];
-                    buffer[0] = 0x80;	/* note off */
-                }
-            }
-        }
-        loop_index = loop_index+1 >= loop_nsamp ? 0 : loop_index+1;
-    }
-    return 0;
+	for (i = 0; i < nframes; i++) {
+		for (j = 0; j < num_notes; j++) {
+			if (note_starts[j] == loop_index) {
+				if ((buffer = jack_midi_event_reserve(port_buf, i, 3))) {
+					/* printf("wrote a note on, port buffer = 0x%x, event buffer = 0x%x\n", port_buf, buffer); */
+					buffer[2] = 64;		/* velocity */
+					buffer[1] = note_frqs[j];
+					buffer[0] = 0x90;	/* note on */
+				}
+			} else if (note_starts[j] + note_lengths[j] == loop_index) {
+				if ((buffer = jack_midi_event_reserve(port_buf, i, 3))) {
+					/* printf("wrote a note off, port buffer = 0x%x, event buffer = 0x%x\n", port_buf, buffer); */
+					buffer[2] = 64;		/* velocity */
+					buffer[1] = note_frqs[j];
+					buffer[0] = 0x80;	/* note off */
+				}
+			}
+		}
+		loop_index = loop_index+1 >= loop_nsamp ? 0 : loop_index+1;
+	}
+	return 0;
 }
 
 int main(int narg, char **args)
@@ -122,12 +122,12 @@ int main(int narg, char **args)
 	/* run until interrupted */
 	while (1) {
 #ifdef WIN32
-		Sleep(1*1000);
+		Sleep(1000);
 #else
 		sleep(1);
 #endif
 	};
 
-    jack_client_close(client);
+	jack_client_close(client);
 	exit (0);
 }
