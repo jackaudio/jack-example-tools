@@ -6,7 +6,9 @@
 
 #include <stdio.h>
 #include <errno.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
@@ -20,12 +22,6 @@ jack_client_t *client;
 jack_default_audio_sample_t *delay_line;
 jack_nframes_t delay_index;
 jack_nframes_t latency = 1024;
-
-#ifdef WIN32
-#define jack_sleep(val) Sleep((val))
-#else
-#define jack_sleep(val) usleep((val) * 1000)
-#endif
 
 /**
  * The process callback for this JACK application is called in a
@@ -77,7 +73,7 @@ latency_cb (jack_latency_callback_mode_t mode, void *arg)
 void
 jack_shutdown (void *arg)
 {
-    fprintf(stderr, "JACK shut down, exiting ...\n");
+	fprintf(stderr, "JACK shut down, exiting ...\n");
 	exit (1);
 }
 
@@ -89,7 +85,6 @@ main (int argc, char *argv[])
 	const char *server_name = NULL;
 	jack_options_t options = JackNullOption;
 	jack_status_t status;
-
 
 	if (argc == 2)
 		latency = atoi(argv[1]);
@@ -204,7 +199,11 @@ main (int argc, char *argv[])
 
 	/* keep running until stopped by the user */
 
-	jack_sleep (-1);
+#ifdef WIN32
+	Sleep (-1);
+#else
+	sleep (-1);
+#endif
 
 	/* this is never reached but if the program
 	   had some other way to exit besides being killed,
