@@ -35,17 +35,17 @@
 #include <jack/ringbuffer.h>
 
 typedef struct _thread_info {
-    pthread_t thread_id;
-    SNDFILE *sf;
-    jack_nframes_t duration;
-    jack_nframes_t rb_size;
-    jack_client_t *client;
-    unsigned int channels;
-    int bitdepth;
-    char *path;
-    volatile int can_capture;
-    volatile int can_process;
-    volatile int status;
+	pthread_t thread_id;
+	SNDFILE *sf;
+	jack_nframes_t duration;
+	jack_nframes_t rb_size;
+	jack_client_t *client;
+	unsigned int channels;
+	int bitdepth;
+	char *path;
+	volatile int can_capture;
+	volatile int can_process;
+	volatile int status;
 } jack_thread_info_t;
 
 /* JACK data */
@@ -150,8 +150,8 @@ process (jack_nframes_t nframes, void *arg)
 	 * in that case, because the disk thread will read all the
 	 * data queued before waiting again. */
 	if (pthread_mutex_trylock (&disk_thread_lock) == 0) {
-	    pthread_cond_signal (&data_ready);
-	    pthread_mutex_unlock (&disk_thread_lock);
+		pthread_cond_signal (&data_ready);
+		pthread_mutex_unlock (&disk_thread_lock);
 	}
 
 	return 0;
@@ -263,7 +263,7 @@ setup_ports (int sources, char *source_names[], jack_thread_info_t *info)
 int
 main (int argc, char *argv[])
 {
-    jack_thread_info_t thread_info;
+	jack_thread_info_t thread_info;
 	int c;
 	int longopt_index = 0;
 	extern int optind, opterr;
@@ -335,7 +335,7 @@ main (int argc, char *argv[])
 
 	setup_ports (argc - optind, &argv[optind], &thread_info);
 
-     /* install a signal handler to properly quits jack client */
+	/* install a signal handler to properly quits jack client */
 #ifndef WIN32
 	signal(SIGQUIT, signal_handler);
 	signal(SIGHUP, signal_handler);
