@@ -11,34 +11,23 @@
 char * my_name;
 
 void
-show_version (void)
+show_usage(void)
 {
-	fprintf (stderr, "%s: JACK example tools version %s\n", my_name, __PROJECT_VERSION__);
-}
-
-void
-show_usage (void)
-{
-	show_version ();
-	fprintf (stderr, "\nUsage: %s [options]\n", my_name);
-	fprintf (stderr, "Check for jack existence, or wait, until it either quits, or gets started\n");
-	fprintf (stderr, "options:\n");
-	fprintf (stderr, "        -s, --server <name>   Connect to the jack server named <name>\n");
-	fprintf (stderr, "        -w, --wait            Wait for server to become available\n");
-	fprintf (stderr, "        -q, --quit            Wait until server is quit\n");
-	fprintf (stderr, "        -c, --check           Check wether server is running\n");
-	fprintf (stderr, "        -t, --timeout         Wait timeout in seconds\n");
-	fprintf (stderr, "        -h, --help            Display this help message\n");
-	fprintf (stderr, "        --version             Output version information and exit\n\n");
-	fprintf (stderr, "For more information see http://jackaudio.org/\n");
-}
-
-void silent_function( const char *ignore )
-{
+	fprintf(stderr, "\nUsage: %s [options]\n", my_name);
+	fprintf(stderr, "Check for jack existence, or wait, until it either quits, or gets started\n");
+	fprintf(stderr, "options:\n");
+	fprintf(stderr, "        -s, --server <name>   Connect to the jack server named <name>\n");
+	fprintf(stderr, "        -n, --name <name>     Set client name to <name>\n");
+	fprintf(stderr, "        -w, --wait            Wait for server to become available\n");
+	fprintf(stderr, "        -q, --quit            Wait until server is quit\n");
+	fprintf(stderr, "        -c, --check           Check whether server is running\n");
+	fprintf(stderr, "        -t, --timeout         Wait timeout in seconds\n");
+	fprintf(stderr, "        -h, --help            Display this help message\n");
+	fprintf(stderr, "For more information see http://jackaudio.org/\n");
 }
 
 int
-main (int argc, char *argv[])
+main(int argc, char *argv[])
 {
 	jack_client_t *client;
 	jack_status_t status;
@@ -46,21 +35,22 @@ main (int argc, char *argv[])
 	int c;
 	int option_index;
 	char *server_name = NULL;
+	char *client_name = NULL;
 	int wait_for_start = 0;
 	int wait_for_quit = 0;
 	int just_check = 0;
 	int wait_timeout = 0;
 	time_t start_timestamp;
 
-	
+
 	struct option long_options[] = {
 		{ "server", 1, 0, 's' },
 		{ "wait", 0, 0, 'w' },
+		{ "name", 1, 0, 'n'}, 
 		{ "quit", 0, 0, 'q' },
 		{ "check", 0, 0, 'c' },
 		{ "timeout", 1, 0, 't' },
 		{ "help", 0, 0, 'h' },
-		{ "version", 0, 0, 'v' },
 		{ 0, 0, 0, 0 }
 	};
 
@@ -71,12 +61,16 @@ main (int argc, char *argv[])
 		my_name ++;
 	}
 
-	while ((c = getopt_long (argc, argv, "s:wqct:hv", long_options, &option_index)) >= 0) {
+	while ((c = getopt_long (argc, argv, "s:n:wqct:hv", long_options, &option_index)) >= 0) {
 		switch (c) {
 		case 's':
-			server_name = (char *) malloc (sizeof (char) * strlen(optarg));
+			server_name = (char *) malloc (sizeof (char) * (strlen(optarg) + 1));
 			strcpy (server_name, optarg);
 			options |= JackServerName;
+			break;
+		case 'n':
+			client_name = (char *) malloc (sizeof (char) * (strlen(optarg) + 1));
+			strcpy (client_name, optarg);
 			break;
 		case 'w':
 			wait_for_start = 1;
@@ -91,15 +85,11 @@ main (int argc, char *argv[])
 			wait_timeout = atoi(optarg);
 			break;
 		case 'h':
-			show_usage ();
-			return 1;
-			break;
-		case 'v':
-			show_version ();
+			show_usage();
 			return 1;
 			break;
 		default:
-			show_usage ();
+			show_usage();
 			return 1;
 			break;
 		}
@@ -107,48 +97,56 @@ main (int argc, char *argv[])
 
 	/* try to open server in a loop. breaking under certein conditions */
 
-	start_timestamp = time( NULL );
-        jack_set_info_function( silent_function );
+	start_timestamp = time(NULL);
 
-	while(1) {
-		client = jack_client_open ("wait", options, &status, server_name);
+	while (1) {
+		if (client_name) {
+			client = jack_client_open (client_name, options, &status, server_name);
+		}
+		else {
+			client = jack_client_open ("wait", options, &status, server_name);
+		}
 		/* check for some real error and bail out */
-		if( (client == NULL) && !(status & JackServerFailed) ) {
+		if ((client == NULL) && !(status & JackServerFailed)) {
 			fprintf (stderr, "jack_client_open() failed, "
 					"status = 0x%2.0x\n", status);
 			return 1;
 		}
 
-		if( client == NULL ) {
-			if( wait_for_quit ) {
-				fprintf( stdout, "server is gone\n" );
+		if (client == NULL) {
+			if (wait_for_quit) {
+				fprintf(stdout, "server is gone\n");
 				break;
 			}
-			if( just_check ) {
-				fprintf( stdout, "not running\n" );
+			if (just_check) {
+				fprintf(stdout, "not running\n");
 				break;
 			}
 		} else {
-			jack_client_close( client );
-			if( wait_for_start ) {
-				fprintf( stdout, "server is available\n" );
+			jack_client_close(client);
+			if (wait_for_start) {
+				fprintf(stdout, "server is available\n");
 				break;
 			}
-			if( just_check ) {
-				fprintf( stdout, "running\n" );
+			if (just_check) {
+				fprintf(stdout, "running\n");
 				break;
 			}
 		}
-		if( wait_timeout ) {
-		       if( (time( NULL ) - start_timestamp) > wait_timeout ) {
-			       fprintf( stdout, "timeout\n" );
-			       break;
-		       }
+		if (wait_timeout) {
+			if ((time(NULL) - start_timestamp) > wait_timeout) {
+				fprintf(stdout, "timeout\n");
+				exit(EXIT_FAILURE);
+			}
 		}
 
 		// Wait a second, and repeat
+#ifdef WIN32
+		Sleep(1*1000);
+#else
 		sleep(1);
+#endif
 	}
 
-	exit (0);
+	exit(0);
 }
