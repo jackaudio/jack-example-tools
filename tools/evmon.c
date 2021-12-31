@@ -72,34 +72,34 @@ graph_callback (void* arg)
 static void
 propchange (jack_uuid_t subject, const char* key, jack_property_change_t change, void* arg)
 {
-        char buf[JACK_UUID_STRING_SIZE];
-        const char* action = "";
+	char buf[JACK_UUID_STRING_SIZE];
+	const char* action = "";
 
-        switch (change) {
-        case PropertyCreated:
-                action = "created";
-                break;
+	switch (change) {
+	case PropertyCreated:
+		action = "created";
+		break;
 
-        case PropertyChanged:
-                action = "changed";
-                break;
+	case PropertyChanged:
+		action = "changed";
+		break;
 
-        case PropertyDeleted:
-                action = "deleted";
-                break;
-        }
+	case PropertyDeleted:
+		action = "deleted";
+		break;
+	}
 
-        if (jack_uuid_empty (subject)) {
-                printf ("All properties changed!\n");
-        } else {
-                jack_uuid_unparse (subject, buf);
-                
-                if (key) {
-                        printf ("key [%s] for %s %s\n", key, buf, action);
-                } else {
-                        printf ("all keys for %s %s\n", buf, action);
-                }
-        }
+	if (jack_uuid_empty (subject)) {
+		printf ("All properties changed!\n");
+	} else {
+		jack_uuid_unparse (subject, buf);
+
+		if (key) {
+			printf ("key [%s] for %s %s\n", key, buf, action);
+		} else {
+			printf ("all keys for %s %s\n", buf, action);
+		}
+	}
 }
 
 int
