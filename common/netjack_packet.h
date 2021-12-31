@@ -39,7 +39,6 @@ extern "C"
 
 // The Packet Header.
 
-#define CELT_MODE 1000   // Magic bitdepth value that indicates CELT compression
 #define OPUS_MODE  999   // Magic bitdepth value that indicates OPUS compression
 #define MASTER_FREEWHEELS 0x80000000
 
