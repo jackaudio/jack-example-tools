@@ -114,7 +114,7 @@ exe_jack_netsource = executable(
   c_args: ['-DNO_JACK_ERROR'],
   sources: ['netsource.c', '../common/netjack_packet.c'],
   include_directories: ['../common'],
-  dependencies: [dep_celt, dep_opus, dep_jack, dep_samplerate, lib_m],
+  dependencies: [dep_opus, dep_jack, dep_samplerate, lib_m],
   install: true
 )
 
