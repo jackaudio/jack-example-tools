@@ -23,7 +23,6 @@ However, testing is very much welcomed!*
 The project requires the following dependencies:
 
 * [alsa-lib](https://www.alsa-project.org/wiki/Main_Page)
-* [celt](https://gitlab.xiph.org/xiph/celt)
 * [jack1](https://github.com/jackaudio/jack1) or [jack2](https://github.com/jackaudio/jack2)
 * [opus](https://www.opus-codec.org/)
 * [readline](https://tiswww.case.edu/php/chet/readline/rltop.html)
