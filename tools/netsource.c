@@ -54,10 +54,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include <samplerate.h>
 #endif
 
-#if HAVE_CELT
-#include <celt/celt.h>
-#endif
-
 #ifndef CUSTOM_MODES
 #define CUSTOM_MODES // for opus_custom_decoder_init
 #endif
@@ -82,7 +78,7 @@ int playback_channels_midi = 1;
 int dont_htonl_floats = 0;
 
 int latency = 5;
-jack_nframes_t factor = 1;
+jack_nframes_t kbps = 0;
 int bitdepth = 0;
 int mtu = 1400;
 int reply_port = 0;
@@ -140,20 +136,7 @@ alloc_ports (int n_capture_audio, int n_playback_audio, int n_capture_midi, int 
             printf( "jack_netsource: cannot register %s port\n", buf);
             break;
         }
-        if (bitdepth == 1000) {
-#if HAVE_CELT
-#if HAVE_CELT_API_0_11
-            CELTMode *celt_mode = celt_mode_create( jack_get_sample_rate( client ), jack_get_buffer_size(client), NULL );
-            capture_srcs = jack_slist_append(capture_srcs, celt_decoder_create_custom( celt_mode, 1, NULL ) );
-#elif HAVE_CELT_API_0_7 || HAVE_CELT_API_0_8
-            CELTMode *celt_mode = celt_mode_create( jack_get_sample_rate( client ), jack_get_buffer_size(client), NULL );
-            capture_srcs = jack_slist_append(capture_srcs, celt_decoder_create( celt_mode, 1, NULL ) );
-#else
-            CELTMode *celt_mode = celt_mode_create( jack_get_sample_rate( client ), 1, jack_get_buffer_size(client), NULL );
-            capture_srcs = jack_slist_append(capture_srcs, celt_decoder_create( celt_mode ) );
-#endif
-#endif
-        } else if (bitdepth == 999) {
+        if (bitdepth == 999) {
 #if HAVE_OPUS
             int err;
             OpusCustomMode *opus_mode = opus_custom_mode_create(jack_get_sample_rate( client ), jack_get_buffer_size(client), &err);
@@ -192,22 +175,8 @@ alloc_ports (int n_capture_audio, int n_playback_audio, int n_capture_midi, int 
             printf ("jack_netsource: cannot register %s port\n", buf);
             break;
         }
-        if( bitdepth == 1000 ) {
-#if HAVE_CELT
-#if HAVE_CELT_API_0_11
-            CELTMode *celt_mode = celt_mode_create( jack_get_sample_rate (client), jack_get_buffer_size(client), NULL );
-            playback_srcs = jack_slist_append(playback_srcs, celt_encoder_create_custom( celt_mode, 1, NULL ) );
-#elif HAVE_CELT_API_0_7 || HAVE_CELT_API_0_8
-            CELTMode *celt_mode = celt_mode_create( jack_get_sample_rate (client), jack_get_buffer_size(client), NULL );
-            playback_srcs = jack_slist_append(playback_srcs, celt_encoder_create( celt_mode, 1, NULL ) );
-#else
-            CELTMode *celt_mode = celt_mode_create( jack_get_sample_rate (client), 1, jack_get_buffer_size(client), NULL );
-            playback_srcs = jack_slist_append(playback_srcs, celt_encoder_create( celt_mode ) );
-#endif
-#endif
-        } else if( bitdepth == 999 ) {
+        if( bitdepth == 999 ) {
 #if HAVE_OPUS
-            const int kbps = factor;
             printf("new opus encoder %d kbps\n", kbps);
             int err;
             OpusCustomMode *opus_mode = opus_custom_mode_create(jack_get_sample_rate (client), jack_get_buffer_size(client), &err ); // XXX free me
@@ -300,10 +269,10 @@ process (jack_nframes_t nframes, void *arg)
     uint32_t *rx_packet_ptr;
     jack_time_t packet_recv_timestamp;
 
-    if( bitdepth == 1000 || bitdepth == 999)
-        net_period = (factor * jack_get_buffer_size(client) * 1024 / jack_get_sample_rate(client) / 8) & (~1) ;
+    if( bitdepth == 999)
+        net_period = (kbps * jack_get_buffer_size(client) * 1024 / jack_get_sample_rate(client) / 8) & (~1) ;
     else
-        net_period = (float) nframes / (float) factor;
+        net_period = (float) nframes;
 
     rx_bufsize =  get_sample_size (bitdepth) * capture_channels * net_period + sizeof (jacknet_packet_header);
     tx_bufsize =  get_sample_size (bitdepth) * playback_channels * net_period + sizeof (jacknet_packet_header);
@@ -549,7 +518,6 @@ printUsage ()
              "  -r <reply port> - UDP port that we are listening on\n"
              "  -B <bind port> - reply port, for use in NAT environments\n"
              "  -b <bitdepth> - Set transport to use 16bit or 8bit\n"
-             "  -c <kbits> - Use CELT encoding with <kbits> kbits per channel\n"
              "  -P <kbits> - Use Opus encoding with <kbits> kbits per channel\n"
              "  -m <mtu> - Assume this mtu for the link\n"
              "  -R <N> - Redundancy: send out packets N times.\n"
@@ -631,26 +599,13 @@ main (int argc, char *argv[])
             case 'B':
                 bind_port = atoi (optarg);
                 break;
-            case 'f':
-                factor = atoi (optarg);
-                printf("This feature is deprecated and will be removed in future netjack versions. CELT offers a superiour way to conserve bandwidth");
-                break;
             case 'b':
                 bitdepth = atoi (optarg);
-                break;
-            case 'c':
-#if HAVE_CELT
-                bitdepth = 1000;
-                factor = atoi (optarg);
-#else
-                printf( "not built with celt support\n" );
-                exit(10);
-#endif
                 break;
             case 'P':
 #if HAVE_OPUS
                 bitdepth = 999;
-                factor = atoi (optarg);
+                kbps = atoi (optarg);
 #else
                 printf( "not built with opus support\n" );
                 exit(10);
@@ -730,10 +685,10 @@ main (int argc, char *argv[])
 
     alloc_ports (capture_channels_audio, playback_channels_audio, capture_channels_midi, playback_channels_midi);
 
-    if( bitdepth == 1000 || bitdepth == 999)
-        net_period = (factor * jack_get_buffer_size(client) * 1024 / jack_get_sample_rate(client) / 8) & (~1) ;
+    if( bitdepth == 999)
+        net_period = (kbps * jack_get_buffer_size(client) * 1024 / jack_get_sample_rate(client) / 8) & (~1) ;
     else
-        net_period = ceilf((float) jack_get_buffer_size (client) / (float) factor);
+        net_period = ceilf((float) jack_get_buffer_size (client));
 
     int rx_bufsize =  get_sample_size (bitdepth) * capture_channels * net_period + sizeof (jacknet_packet_header);
     packcache = packet_cache_new (latency + 50, rx_bufsize, mtu);
