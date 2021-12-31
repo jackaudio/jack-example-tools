@@ -10,6 +10,10 @@
 
 char * my_name;
 
+void silent_function( const char *ignore )
+{
+}
+
 void
 show_usage(void)
 {
@@ -61,7 +65,7 @@ main(int argc, char *argv[])
 		my_name ++;
 	}
 
-	while ((c = getopt_long (argc, argv, "s:n:wqct:hv", long_options, &option_index)) >= 0) {
+	while ((c = getopt_long (argc, argv, "s:n:wqct:h", long_options, &option_index)) >= 0) {
 		switch (c) {
 		case 's':
 			server_name = (char *) malloc (sizeof (char) * (strlen(optarg) + 1));
@@ -87,13 +91,13 @@ main(int argc, char *argv[])
 		case 'h':
 			show_usage();
 			return 1;
-			break;
 		default:
 			show_usage();
 			return 1;
-			break;
 		}
 	}
+
+	jack_set_info_function(silent_function);
 
 	/* try to open server in a loop. breaking under certein conditions */
 
