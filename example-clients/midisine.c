@@ -78,13 +78,13 @@ static int process(jack_nframes_t nframes, void *arg)
 		{
 			if (((*(in_event.buffer) & 0xf0)) == 0x90)
 			{
-                /* note on */
-                note = *(in_event.buffer + 1);
-                if (*(in_event.buffer + 2) == 0) {
-                    note_on = 0.0;
-                } else {
-                    note_on = (float)(*(in_event.buffer + 2)) / 127.f;
-                }
+				/* note on */
+				note = *(in_event.buffer + 1);
+				if (*(in_event.buffer + 2) == 0) {
+					note_on = 0.0;
+				} else {
+					note_on = (float)(*(in_event.buffer + 2)) / 127.f;
+				}
 			}
 			else if (((*(in_event.buffer)) & 0xf0) == 0x80)
 			{
@@ -112,7 +112,7 @@ static int srate(jack_nframes_t nframes, void *arg)
 
 static void jack_shutdown(void *arg)
 {
-    fprintf(stderr, "JACK shut down, exiting ...\n");
+	fprintf(stderr, "JACK shut down, exiting ...\n");
 	exit(1);
 }
 
