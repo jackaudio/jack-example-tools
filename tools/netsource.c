@@ -50,9 +50,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include <jack/jack.h>
 
 #include <netjack_packet.h>
-#if HAVE_SAMPLERATE
 #include <samplerate.h>
-#endif
 
 #ifndef CUSTOM_MODES
 #define CUSTOM_MODES // for opus_custom_decoder_init
@@ -147,9 +145,7 @@ alloc_ports (int n_capture_audio, int n_playback_audio, int n_capture_midi, int 
             capture_srcs = jack_slist_append(capture_srcs, decoder);
 #endif
         } else {
-#if HAVE_SAMPLERATE
             capture_srcs = jack_slist_append (capture_srcs, src_new (SRC_LINEAR, 1, NULL));
-#endif
         }
         capture_ports = jack_slist_append (capture_ports, port);
     }
@@ -191,9 +187,7 @@ alloc_ports (int n_capture_audio, int n_playback_audio, int n_capture_midi, int 
             playback_srcs = jack_slist_append(playback_srcs, oe);
 #endif
         } else {
-#if HAVE_SAMPLERATE
             playback_srcs = jack_slist_append (playback_srcs, src_new (SRC_LINEAR, 1, NULL));
-#endif
         }
         playback_ports = jack_slist_append (playback_ports, port);
     }
