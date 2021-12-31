@@ -41,6 +41,7 @@
 char *package;				/* program name */
 int done = 0;
 jack_client_t *client;
+double last_tick;
 
 /* Time and tempo variables.  These are global to the entire,
  * transport timeline.  There is no attempt to keep a true tempo map.
@@ -51,13 +52,15 @@ float time_beat_type = 4.0;
 double time_ticks_per_beat = 1920.0;
 double time_beats_per_minute = 120.0;
 volatile int time_reset = 1;		/* true when time values change */
+volatile int avr_set = 0;
+float audio_frames_per_video_frame;
 
 /* JACK timebase callback.
  *
  * Runs in the process thread.  Realtime, must not wait.
  */
 static void timebase(jack_transport_state_t state, jack_nframes_t nframes,
-	      jack_position_t *pos, int new_pos, void *arg)
+                     jack_position_t *pos, int new_pos, void *arg)
 {
 	double min;			/* minutes since frame 0 */
 	long abs_tick;			/* ticks since frame 0 */
@@ -84,7 +87,7 @@ static void timebase(jack_transport_state_t state, jack_nframes_t nframes,
 
 		pos->bar = abs_beat / pos->beats_per_bar;
 		pos->beat = abs_beat - (pos->bar * pos->beats_per_bar) + 1;
-		pos->tick = abs_tick - (abs_beat * pos->ticks_per_beat);
+		last_tick = abs_tick - (abs_beat * pos->ticks_per_beat);
 		pos->bar_start_tick = pos->bar * pos->beats_per_bar *
 			pos->ticks_per_beat;
 		pos->bar++;		/* adjust start to bar 1 */
@@ -93,18 +96,18 @@ static void timebase(jack_transport_state_t state, jack_nframes_t nframes,
 		/* some debug code... */
 		fprintf(stderr, "\nnew position: %" PRIu32 "\tBBT: %3"
 			PRIi32 "|%" PRIi32 "|%04" PRIi32 "\n",
-			pos->frame, pos->bar, pos->beat, pos->tick);
+			pos->frame, pos->bar, pos->beat, last_tick);
 #endif
 
 	} else {
 
 		/* Compute BBT info based on previous period. */
-		pos->tick +=
+		last_tick +=
 			nframes * pos->ticks_per_beat * pos->beats_per_minute
 			/ (pos->frame_rate * 60);
 
-		while (pos->tick >= pos->ticks_per_beat) {
-			pos->tick -= pos->ticks_per_beat;
+		while (last_tick >= pos->ticks_per_beat) {
+			last_tick -= pos->ticks_per_beat;
 			if (++pos->beat > pos->beats_per_bar) {
 				pos->beat = 1;
 				++pos->bar;
@@ -114,6 +117,18 @@ static void timebase(jack_transport_state_t state, jack_nframes_t nframes,
 			}
 		}
 	}
+
+	pos->tick = (int)(last_tick + 0.5);
+
+	if (avr_set) {
+		pos->valid |= JackAudioVideoRatio;
+		pos->audio_frames_per_video_frame = audio_frames_per_video_frame;
+	}
+}
+
+static int jack_process(jack_nframes_t nframes, void *arg)
+{
+	return 0;
 }
 
 static void jack_shutdown(void *arg)
@@ -234,6 +249,19 @@ static void com_toggle(char *arg)
 	}
 }
 
+/* Change the tempo for the entire timeline, not just from the current
+ * location. */
+void com_av_ratio(char *arg)
+{
+	float avr = 0;
+
+	if (*arg != '\0')
+		avr = atof(arg);
+
+	audio_frames_per_video_frame = avr;
+	avr_set = 1;
+}
+
 
 /* Command parsing based on GNU readline info examples. */
 
@@ -249,6 +277,7 @@ typedef struct {
 /* command table must be in alphabetical order */
 command_t commands[] = {
 	{"activate",	com_activate,	"Call jack_activate()"},
+	{"avr",	        com_av_ratio,	"Set audio/video frame ratio <audio frames per video frame>"},
 	{"exit",	com_exit,	"Exit transport program"},
 	{"deactivate",	com_deactivate,	"Call jack_deactivate()"},
 	{"help",	com_help,	"Display help text [<command>]"},
@@ -280,7 +309,7 @@ static command_t *find_command(char *name)
 
 			/* make sure the match is unique */
 			if ((commands[i+1].name) &&
-			    (strncmp(name, commands[i+1].name, namelen) == 0))
+				(strncmp(name, commands[i+1].name, namelen) == 0))
 				return ((command_t *)NULL);
 			else
 				return (&commands[i]);
@@ -493,6 +522,7 @@ int main(int argc, char *argv[])
 	signal(SIGTERM, signal_handler);
 	signal(SIGINT, signal_handler);
 
+	jack_set_process_callback(client, jack_process, 0);
 	jack_on_shutdown(client, jack_shutdown, 0);
 
 	if (jack_activate(client)) {
