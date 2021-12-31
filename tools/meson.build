@@ -132,11 +132,12 @@ exe_jack_samplerate = executable(
   install: true
 )
 
+# dont install, jack session is deprecated
 exe_jack_session_notify = executable(
   'jack_session_notify',
   sources: ['session_notify.c'],
   dependencies: [dep_jack],
-  install: true
+  install: false
 )
 
 exe_jack_transport = executable(

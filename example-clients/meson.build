@@ -134,11 +134,12 @@ exe_jack_simple_client = executable(
   install: true
 )
 
+# dont install, jack session is deprecated
 exe_jack_simple_session_client = executable(
   'jack_simple_session_client',
   sources: ['simple_session_client.c'],
   dependencies: [dep_jack],
-  install: true
+  install: false
 )
 
 exe_jack_transport_client = executable(
