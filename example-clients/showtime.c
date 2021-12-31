@@ -59,13 +59,30 @@ showtime ()
 	if (current.valid & JackPositionTimecode)
 		printf ("\tTC: (%.6f, %.6f)",
 			current.frame_time, current.next_time);
+
+	if (current.valid & JackBBTFrameOffset)
+		printf ("\tBBT offset: (%" PRIi32 ")",
+			current.bbt_offset);
+
+	if (current.valid & JackAudioVideoRatio)
+		printf ("\taudio/video: (%f)",
+			current.audio_frames_per_video_frame);
+
+	if (current.valid & JackVideoFrameOffset) {
+		if (current.video_offset) {
+			printf ("\t video@: (%" PRIi32 ")", current.video_offset);
+		} else {
+			printf ("\t no video");
+		}
+	}
+
 	printf ("\n");
 }
 
 static void
 jack_shutdown (void *arg)
 {
-    fprintf(stderr, "JACK shut down, exiting ...\n");
+	fprintf(stderr, "JACK shut down, exiting ...\n");
 	exit (1);
 }
 
