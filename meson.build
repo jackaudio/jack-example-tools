@@ -12,7 +12,7 @@ lib_m = cc.find_library('m')
 lib_rt = cc.find_library('rt')
 
 dep_alsa = dependency('alsa', version: '>=1.0.18', required: false)
-dep_celt = dependency('celt', version: '>=0.11.0')
+dep_celt = dependency('celt', version: '>=0.11.0', required: false)
 dep_jack = dependency('jack')
 jack_version = dep_jack.version()
 lib_jackserver = cc.find_library('jackserver', required: true)
