@@ -65,9 +65,7 @@
 #include <errno.h>
 #include <signal.h>
 
-#if HAVE_SAMPLERATE
 #include <samplerate.h>
-#endif
 
 #if HAVE_OPUS
 #include <opus/opus.h>
@@ -861,9 +859,7 @@ render_payload_to_jack_ports_float ( void *packet_payload, jack_nframes_t net_pe
 {
     int chn = 0;
     JSList *node = capture_ports;
-#if HAVE_SAMPLERATE
     JSList *src_node = capture_srcs;
-#endif
 
     uint32_t *packet_bufX = (uint32_t *)packet_payload;
 
@@ -873,9 +869,7 @@ render_payload_to_jack_ports_float ( void *packet_payload, jack_nframes_t net_pe
     while (node != NULL) {
         int i;
         int_float_t val;
-#if HAVE_SAMPLERATE
         SRC_DATA src;
-#endif
 
         jack_port_t *port = (jack_port_t *) node->data;
         jack_default_audio_sample_t* buf = jack_port_get_buffer (port, nframes);
@@ -883,7 +877,6 @@ render_payload_to_jack_ports_float ( void *packet_payload, jack_nframes_t net_pe
         const char *porttype = jack_port_type (port);
 
         if (jack_port_is_audio (porttype)) {
-#if HAVE_SAMPLERATE
             // audio port, resample if necessary
             if (net_period_down != nframes) {
                 SRC_STATE *src_state = src_node->data;
@@ -904,7 +897,6 @@ render_payload_to_jack_ports_float ( void *packet_payload, jack_nframes_t net_pe
                 src_process (src_state, &src);
                 src_node = jack_slist_next (src_node);
             } else
-#endif
             {
                 if( dont_htonl_floats ) {
                     memcpy( buf, packet_bufX, net_period_down * sizeof(jack_default_audio_sample_t));
@@ -934,16 +926,12 @@ render_jack_ports_to_payload_float (JSList *playback_ports, JSList *playback_src
 {
     int chn = 0;
     JSList *node = playback_ports;
-#if HAVE_SAMPLERATE
     JSList *src_node = playback_srcs;
-#endif
 
     uint32_t *packet_bufX = (uint32_t *) packet_payload;
 
     while (node != NULL) {
-#if HAVE_SAMPLERATE
         SRC_DATA src;
-#endif
         int i;
         int_float_t val;
         jack_port_t *port = (jack_port_t *) node->data;
@@ -954,7 +942,6 @@ render_jack_ports_to_payload_float (JSList *playback_ports, JSList *playback_src
         if (jack_port_is_audio (porttype)) {
             // audio port, resample if necessary
 
-#if HAVE_SAMPLERATE
             if (net_period_up != nframes) {
                 SRC_STATE *src_state = src_node->data;
                 src.data_in = buf;
@@ -974,7 +961,6 @@ render_jack_ports_to_payload_float (JSList *playback_ports, JSList *playback_src
                 }
                 src_node = jack_slist_next (src_node);
             } else
-#endif
             {
                 if( dont_htonl_floats ) {
                     memcpy( packet_bufX, buf, net_period_up * sizeof(jack_default_audio_sample_t) );
@@ -1005,9 +991,7 @@ render_payload_to_jack_ports_16bit (void *packet_payload, jack_nframes_t net_per
 {
     int chn = 0;
     JSList *node = capture_ports;
-#if HAVE_SAMPLERATE
     JSList *src_node = capture_srcs;
-#endif
 
     uint16_t *packet_bufX = (uint16_t *)packet_payload;
 
@@ -1017,22 +1001,17 @@ render_payload_to_jack_ports_16bit (void *packet_payload, jack_nframes_t net_per
     while (node != NULL) {
         int i;
         //uint32_t val;
-#if HAVE_SAMPLERATE
         SRC_DATA src;
-#endif
 
         jack_port_t *port = (jack_port_t *) node->data;
         jack_default_audio_sample_t* buf = jack_port_get_buffer (port, nframes);
 
-#if HAVE_SAMPLERATE
         float *floatbuf = alloca (sizeof(float) * net_period_down);
-#endif
         const char *porttype = jack_port_type (port);
 
         if (jack_port_is_audio (porttype)) {
             // audio port, resample if necessary
 
-#if HAVE_SAMPLERATE
             if (net_period_down != nframes) {
                 SRC_STATE *src_state = src_node->data;
                 for (i = 0; i < net_period_down; i++) {
@@ -1052,7 +1031,6 @@ render_payload_to_jack_ports_16bit (void *packet_payload, jack_nframes_t net_per
                 src_process (src_state, &src);
                 src_node = jack_slist_next (src_node);
             } else
-#endif
                 for (i = 0; i < net_period_down; i++)
                     buf[i] = ((float) ntohs (packet_bufX[i])) / 32768.0 - 1.0;
         } else if (jack_port_is_midi (porttype)) {
@@ -1073,16 +1051,12 @@ render_jack_ports_to_payload_16bit (JSList *playback_ports, JSList *playback_src
 {
     int chn = 0;
     JSList *node = playback_ports;
-#if HAVE_SAMPLERATE
     JSList *src_node = playback_srcs;
-#endif
 
     uint16_t *packet_bufX = (uint16_t *)packet_payload;
 
     while (node != NULL) {
-#if HAVE_SAMPLERATE
         SRC_DATA src;
-#endif
         int i;
         jack_port_t *port = (jack_port_t *) node->data;
         jack_default_audio_sample_t* buf = jack_port_get_buffer (port, nframes);
@@ -1091,7 +1065,6 @@ render_jack_ports_to_payload_16bit (JSList *playback_ports, JSList *playback_src
         if (jack_port_is_audio (porttype)) {
             // audio port, resample if necessary
 
-#if HAVE_SAMPLERATE
             if (net_period_up != nframes) {
                 SRC_STATE *src_state = src_node->data;
 
@@ -1114,7 +1087,6 @@ render_jack_ports_to_payload_16bit (JSList *playback_ports, JSList *playback_src
                 }
                 src_node = jack_slist_next (src_node);
             } else
-#endif
                 for (i = 0; i < net_period_up; i++)
                     packet_bufX[i] = htons(((uint16_t)((buf[i] + 1.0) * 32767.0)));
         } else if (jack_port_is_midi (porttype)) {
@@ -1137,9 +1109,7 @@ render_payload_to_jack_ports_8bit (void *packet_payload, jack_nframes_t net_peri
     int chn = 0;
     JSList *node = capture_ports;
 
-#if HAVE_SAMPLERATE
     JSList *src_node = capture_srcs;
-#endif
 
     int8_t *packet_bufX = (int8_t *)packet_payload;
 
@@ -1149,20 +1119,15 @@ render_payload_to_jack_ports_8bit (void *packet_payload, jack_nframes_t net_peri
     while (node != NULL) {
         int i;
         //uint32_t val;
-#if HAVE_SAMPLERATE
         SRC_DATA src;
-#endif
 
         jack_port_t *port = (jack_port_t *) node->data;
         jack_default_audio_sample_t* buf = jack_port_get_buffer (port, nframes);
 
-#if HAVE_SAMPLERATE
         float *floatbuf = alloca (sizeof (float) * net_period_down);
-#endif
         const char *porttype = jack_port_type (port);
 
         if (jack_port_is_audio(porttype)) {
-#if HAVE_SAMPLERATE
             // audio port, resample if necessary
             if (net_period_down != nframes) {
                 SRC_STATE *src_state = src_node->data;
@@ -1182,7 +1147,6 @@ render_payload_to_jack_ports_8bit (void *packet_payload, jack_nframes_t net_peri
                 src_process (src_state, &src);
                 src_node = jack_slist_next (src_node);
             } else
-#endif
                 for (i = 0; i < net_period_down; i++)
                     buf[i] = ((float) packet_bufX[i]) / 127.0;
         } else if (jack_port_is_midi (porttype)) {
@@ -1203,16 +1167,12 @@ render_jack_ports_to_payload_8bit (JSList *playback_ports, JSList *playback_srcs
 {
     int chn = 0;
     JSList *node = playback_ports;
-#if HAVE_SAMPLERATE
     JSList *src_node = playback_srcs;
-#endif
 
     int8_t *packet_bufX = (int8_t *)packet_payload;
 
     while (node != NULL) {
-#if HAVE_SAMPLERATE
         SRC_DATA src;
-#endif
         int i;
         jack_port_t *port = (jack_port_t *) node->data;
 
@@ -1220,7 +1180,6 @@ render_jack_ports_to_payload_8bit (JSList *playback_ports, JSList *playback_srcs
         const char *porttype = jack_port_type (port);
 
         if (jack_port_is_audio (porttype)) {
-#if HAVE_SAMPLERATE
             // audio port, resample if necessary
             if (net_period_up != nframes) {
 
@@ -1244,7 +1203,6 @@ render_jack_ports_to_payload_8bit (JSList *playback_ports, JSList *playback_srcs
                     packet_bufX[i] = floatbuf[i] * 127.0;
                 src_node = jack_slist_next (src_node);
             } else
-#endif
                 for (i = 0; i < net_period_up; i++)
                     packet_bufX[i] = buf[i] * 127.0;
         } else if (jack_port_is_midi (porttype)) {
