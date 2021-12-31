@@ -120,6 +120,11 @@ static void timebase(jack_transport_state_t state, jack_nframes_t nframes,
 
 	pos->tick = (int)(last_tick + 0.5);
 
+#ifdef JACK_TICK_DOUBLE
+	pos->valid |= JackTickDouble;
+	pos->tick_double = last_tick;
+#endif
+
 	if (avr_set) {
 		pos->valid |= JackAudioVideoRatio;
 		pos->audio_frames_per_video_frame = audio_frames_per_video_frame;
