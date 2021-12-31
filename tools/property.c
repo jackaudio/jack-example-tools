@@ -107,7 +107,7 @@ int main (int argc, char* argv[])
 		exit (1);
 	}
 
-	while ((c = getopt_long (argc, argv, "sdDlaApc", long_options, &option_index)) >= 0) {
+	while ((c = getopt_long (argc, argv, "sdDlApc", long_options, &option_index)) >= 0) {
 		switch (c) {
 		case 's':
 			if (argc < 5) {
@@ -320,6 +320,6 @@ int main (int argc, char* argv[])
 		}
 	}
 
-	(void) jack_client_close (client);
+	jack_client_close (client);
 	return 0;
 }
