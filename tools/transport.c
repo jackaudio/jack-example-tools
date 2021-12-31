@@ -2,7 +2,7 @@
  *  transport.c -- JACK transport master example client.
  *
  *  Copyright (C) 2003 Jack O'Quin.
- *  
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -24,15 +24,23 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+#if HAVE_READLINE
 #include <readline/readline.h>
 #include <readline/history.h>
+#endif
 #include <jack/jack.h>
 #include <jack/transport.h>
+
+/* Use a copy of the readline macro whitespace if it does not exist.
+ * Not all readline compatible libraries supply the whitespace macro
+ * (libedit for example), so pull in the copy in those cases too. */
+#if !HAVE_READLINE || !defined(whitespace)
+#define whitespace(c) (((c) == ' ') || ((c) == '\t'))
+#endif
 
 char *package;				/* program name */
 int done = 0;
 jack_client_t *client;
-double last_tick;
 
 /* Time and tempo variables.  These are global to the entire,
  * transport timeline.  There is no attempt to keep a true tempo map.
@@ -43,14 +51,12 @@ float time_beat_type = 4.0;
 double time_ticks_per_beat = 1920.0;
 double time_beats_per_minute = 120.0;
 volatile int time_reset = 1;		/* true when time values change */
-volatile int avr_set = 0;
-float audio_frames_per_video_frame;
 
 /* JACK timebase callback.
  *
  * Runs in the process thread.  Realtime, must not wait.
  */
-void timebase(jack_transport_state_t state, jack_nframes_t nframes, 
+static void timebase(jack_transport_state_t state, jack_nframes_t nframes,
 	      jack_position_t *pos, int new_pos, void *arg)
 {
 	double min;			/* minutes since frame 0 */
@@ -70,8 +76,7 @@ void timebase(jack_transport_state_t state, jack_nframes_t nframes,
 		/* Compute BBT info from frame number.  This is relatively
 		 * simple here, but would become complex if we supported tempo
 		 * or time signature changes at specific locations in the
-		 * transport timeline. 
-		 */
+		 * transport timeline. */
 
 		min = pos->frame / ((double) pos->frame_rate * 60.0);
 		abs_tick = min * pos->beats_per_minute * pos->ticks_per_beat;
@@ -79,7 +84,7 @@ void timebase(jack_transport_state_t state, jack_nframes_t nframes,
 
 		pos->bar = abs_beat / pos->beats_per_bar;
 		pos->beat = abs_beat - (pos->bar * pos->beats_per_bar) + 1;
-		last_tick = abs_tick - (abs_beat * pos->ticks_per_beat);
+		pos->tick = abs_tick - (abs_beat * pos->ticks_per_beat);
 		pos->bar_start_tick = pos->bar * pos->beats_per_bar *
 			pos->ticks_per_beat;
 		pos->bar++;		/* adjust start to bar 1 */
@@ -94,12 +99,12 @@ void timebase(jack_transport_state_t state, jack_nframes_t nframes,
 	} else {
 
 		/* Compute BBT info based on previous period. */
-		last_tick +=
+		pos->tick +=
 			nframes * pos->ticks_per_beat * pos->beats_per_minute
 			/ (pos->frame_rate * 60);
 
-		while (last_tick >= pos->ticks_per_beat) {
-			last_tick -= pos->ticks_per_beat;
+		while (pos->tick >= pos->ticks_per_beat) {
+			pos->tick -= pos->ticks_per_beat;
 			if (++pos->beat > pos->beats_per_bar) {
 				pos->beat = 1;
 				++pos->bar;
@@ -109,21 +114,9 @@ void timebase(jack_transport_state_t state, jack_nframes_t nframes,
 			}
 		}
 	}
-
-	pos->tick = (int)(last_tick + 0.5);
-
-	if (avr_set) {
-		pos->valid |= JackAudioVideoRatio;
-		pos->audio_frames_per_video_frame = audio_frames_per_video_frame;
-	}
 }
 
-int jack_process(jack_nframes_t nframes, void *arg)
-{
-	return 0;
-}
-
-void jack_shutdown(void *arg)
+static void jack_shutdown(void *arg)
 {
 #if defined(RL_READLINE_VERSION) && RL_READLINE_VERSION >= 0x0400
 	rl_cleanup_after_signal();
@@ -132,38 +125,37 @@ void jack_shutdown(void *arg)
 	exit(1);
 }
 
-void signal_handler(int sig)
+static void signal_handler(int sig)
 {
 	jack_client_close(client);
 	fprintf(stderr, "signal received, exiting ...\n");
 	exit(0);
 }
 
-
 /* Command functions: see commands[] table following. */
 
-void com_activate(char *arg)
+static void com_activate(char *arg)
 {
 	if (jack_activate(client)) {
 		fprintf(stderr, "cannot activate client");
 	}
 }
 
-void com_deactivate(char *arg)
+static void com_deactivate(char *arg)
 {
 	if (jack_deactivate(client)) {
 		fprintf(stderr, "cannot deactivate client");
 	}
 }
 
-void com_exit(char *arg)
+static void com_exit(char *arg)
 {
 	done = 1;
 }
 
-void com_help(char *);			/* forward declaration */
+static void com_help(char *);			/* forward declaration */
 
-void com_locate(char *arg)
+static void com_locate(char *arg)
 {
 	jack_nframes_t frame = 0;
 
@@ -173,31 +165,31 @@ void com_locate(char *arg)
 	jack_transport_locate(client, frame);
 }
 
-void com_master(char *arg)
+static void com_master(char *arg)
 {
 	int cond = (*arg != '\0');
 	if (jack_set_timebase_callback(client, cond, timebase, NULL) != 0)
 		fprintf(stderr, "Unable to take over timebase.\n");
 }
 
-void com_play(char *arg)
+static void com_play(char *arg)
 {
 	jack_transport_start(client);
 }
 
-void com_release(char *arg)
+static void com_release(char *arg)
 {
 	jack_release_timebase(client);
 }
 
-void com_stop(char *arg)
+static void com_stop(char *arg)
 {
 	jack_transport_stop(client);
 }
 
 /* Change the tempo for the entire timeline, not just from the current
  * location. */
-void com_tempo(char *arg)
+static void com_tempo(char *arg)
 {
 	float tempo = 120.0;
 
@@ -209,7 +201,7 @@ void com_tempo(char *arg)
 }
 
 /* Set sync timeout in seconds. */
-void com_timeout(char *arg)
+static void com_timeout(char *arg)
 {
 	double timeout = 2.0;
 
@@ -221,7 +213,7 @@ void com_timeout(char *arg)
 
 /* Toggle between play and stop state */
 static void com_toggle(char *arg)
-{       
+{
 	jack_position_t current;
 	jack_transport_state_t transport_state;
 
@@ -229,31 +221,19 @@ static void com_toggle(char *arg)
 
 	switch (transport_state) {
 	case JackTransportStopped:
-        	com_play( arg );
+		com_play( arg );
 		break;
 	case JackTransportRolling:
-        	com_stop( arg );
+		com_stop( arg );
 		break;
 	case JackTransportStarting:
 		fprintf(stderr, "state: Starting - no transport toggling");
 		break;
 	default:
 		fprintf(stderr, "unexpected state: no transport toggling");
-	} 
+	}
 }
 
-/* Change the tempo for the entire timeline, not just from the current
- * location. */
-void com_av_ratio(char *arg)
-{
-	float avr = 0;
-
-	if (*arg != '\0')
-		avr = atof(arg);
-
-	audio_frames_per_video_frame = avr;
-	avr_set = 1;
-}
 
 /* Command parsing based on GNU readline info examples. */
 
@@ -269,7 +249,6 @@ typedef struct {
 /* command table must be in alphabetical order */
 command_t commands[] = {
 	{"activate",	com_activate,	"Call jack_activate()"},
-	{"avr",	        com_av_ratio,	"Set audio/video frame ratio <audio frames per video frame>"},
 	{"exit",	com_exit,	"Exit transport program"},
 	{"deactivate",	com_deactivate,	"Call jack_deactivate()"},
 	{"help",	com_help,	"Display help text [<command>]"},
@@ -286,8 +265,8 @@ command_t commands[] = {
 	{"?",		com_help,	"Synonym for `help'" },
 	{(char *)NULL, (cmd_function_t *)NULL, (char *)NULL }
 };
-     
-command_t *find_command(char *name)
+
+static command_t *find_command(char *name)
 {
 	register int i;
 	size_t namelen;
@@ -306,11 +285,11 @@ command_t *find_command(char *name)
 			else
 				return (&commands[i]);
 		}
-     
+
 	return ((command_t *)NULL);
 }
 
-void com_help(char *arg)
+static void com_help(char *arg)
 {
 	register int i;
 	command_t *cmd;
@@ -345,45 +324,45 @@ void com_help(char *arg)
 	}
 }
 
-void execute_command(char *line)
+static void execute_command(char *line)
 {
 	register int i;
 	command_t *command;
 	char *word;
-     
+
 	/* Isolate the command word. */
 	i = 0;
 	while (line[i] && whitespace(line[i]))
 		i++;
 	word = line + i;
-     
+
 	while (line[i] && !whitespace(line[i]))
 		i++;
-     
+
 	if (line[i])
 		line[i++] = '\0';
-     
+
 	command = find_command(word);
-     
+
 	if (!command) {
 		fprintf(stderr, "%s: No such command.  There is `help\'.\n",
 			word);
 		return;
 	}
-     
+
 	/* Get argument to command, if any. */
 	while (whitespace(line[i]))
 		i++;
-     
+
 	word = line + i;
-     
+
 	/* invoke the command function. */
 	(*command->func)(word);
 }
 
 
 /* Strip whitespace from the start and end of string. */
-char *stripwhite(char *string)
+static char *stripwhite(char *string)
 {
 	register char *s, *t;
 
@@ -393,28 +372,28 @@ char *stripwhite(char *string)
 
 	if (*s == '\0')
 		return s;
-     
+
 	t = s + strlen (s) - 1;
 	while (t > s && whitespace(*t))
 		t--;
 	*++t = '\0';
-     
+
 	return s;
 }
-     
-char *dupstr(char *s)
+
+static char *dupstr(char *s)
 {
 	char *r = malloc(strlen(s) + 1);
 	strcpy(r, s);
 	return r;
 }
-     
+
 /* Readline generator function for command completion. */
-char *command_generator (const char *text, int state)
+static char *command_generator (const char *text, int state)
 {
 	static int list_index, len;
 	char *name;
-     
+
 	/* If this is a new word to complete, initialize now.  This
 	   includes saving the length of TEXT for efficiency, and
 	   initializing the index variable to 0. */
@@ -422,21 +401,22 @@ char *command_generator (const char *text, int state)
 		list_index = 0;
 		len = strlen (text);
 	}
-     
+
 	/* Return the next name which partially matches from the
 	   command list. */
 	while ((name = commands[list_index].name)) {
 		list_index++;
-     
+
 		if (strncmp(name, text, len) == 0)
 			return dupstr(name);
 	}
-     
+
 	return (char *) NULL;		/* No names matched. */
 }
 
-void command_loop()
+static void command_loop()
 {
+#if HAVE_READLINE
 	char *line, *cmd;
 	char prompt[32];
 
@@ -444,32 +424,46 @@ void command_loop()
 
 	/* Allow conditional parsing of the ~/.inputrc file. */
 	rl_readline_name = package;
-     
+
 	/* Define a custom completion function. */
 	rl_completion_entry_function = command_generator;
+#else
+	char line[64] = {0,};
+	char *cmd = NULL;
+#endif
 
 	/* Read and execute commands until the user quits. */
 	while (!done) {
 
+#if HAVE_READLINE
 		line = readline(prompt);
-     
+
 		if (line == NULL) {	/* EOF? */
 			printf("\n");	/* close out prompt */
 			done = 1;
 			break;
 		}
-     
+#else
+		printf("%s> ", package);
+		fgets(line, sizeof(line), stdin);
+		line[strlen(line)-1] = '\0';
+#endif
+
 		/* Remove leading and trailing whitespace from the line. */
 		cmd = stripwhite(line);
 
 		/* If anything left, add to history and execute it. */
 		if (*cmd)
 		{
+#if HAVE_READLINE
 			add_history(cmd);
+#endif
 			execute_command(cmd);
 		}
-     
+
+#if HAVE_READLINE
 		free(line);		/* realine() called malloc() */
+#endif
 	}
 }
 
@@ -492,12 +486,13 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+#if !WIN32
 	signal(SIGQUIT, signal_handler);
-	signal(SIGTERM, signal_handler);
 	signal(SIGHUP, signal_handler);
+#endif
+	signal(SIGTERM, signal_handler);
 	signal(SIGINT, signal_handler);
 
-	jack_set_process_callback(client, jack_process, 0);
 	jack_on_shutdown(client, jack_shutdown, 0);
 
 	if (jack_activate(client)) {
