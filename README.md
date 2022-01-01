@@ -22,9 +22,11 @@ However, testing is very much welcomed!*
 
 The project requires the following dependencies:
 
-* [alsa-lib](https://www.alsa-project.org/wiki/Main_Page)
+* [alsa-lib](https://www.alsa-project.org/wiki/Main_Page) (optional buildtime/
+  runtime dependency for `alsa_in` and `alsa_out`)
 * [jack1](https://github.com/jackaudio/jack1) or [jack2](https://github.com/jackaudio/jack2)
-* [opus](https://www.opus-codec.org/)
+* [opus](https://www.opus-codec.org/) (optional buildtime/ runtime dependency
+  for `jack_netsource`)
 * [readline](https://tiswww.case.edu/php/chet/readline/rltop.html)
 * [libsamplerate](https://libsndfile.github.io/libsamplerate/)
 * [libsndfile](https://libsndfile.github.io/libsndfile/)
