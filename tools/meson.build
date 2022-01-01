@@ -109,9 +109,15 @@ exe_jack_monitor_client = executable(
   install: true
 )
 
+
+c_args_netsource = ['-DNO_JACK_ERROR']
+if dep_opus.found()
+  c_args_netsource += ['-DHAVE_OPUS']
+endif
+
 exe_jack_netsource = executable(
   'jack_netsource',
-  c_args: ['-DNO_JACK_ERROR'],
+  c_args: c_args_netsource,
   sources: ['netsource.c', '../common/netjack_packet.c'],
   include_directories: ['../common'],
   dependencies: [dep_opus, dep_jack, dep_samplerate, lib_m],
