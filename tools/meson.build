@@ -110,9 +110,12 @@ exe_jack_monitor_client = executable(
 )
 
 
-c_args_netsource = ['-DNO_JACK_ERROR']
+c_args_netsource = c_args_common + ['-DNO_JACK_ERROR']
 if dep_opus.found()
   c_args_netsource += ['-DHAVE_OPUS']
+endif
+if cc.has_function('ppoll', prefix : '#define _GNU_SOURCE\n#include <sys/poll.h>')
+  c_args_netsource += ['-DHAVE_PPOLL']
 endif
 
 exe_jack_netsource = executable(
