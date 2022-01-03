@@ -14,6 +14,10 @@
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#if !defined(__JACK1__) && !defined(__JACK2__)
+# error neither __JACK1__ or __JACK2__ is defined, this cannot happen
+#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -67,9 +71,9 @@ main (int argc, char *argv[])
 	client_name = argv[1];
 #ifdef __JACK1__
 	if (jack_internal_client_handle (client, client_name, &status, &intclient) != 0) {
-                if (status & JackFailure) {
-                        fprintf (stderr, "client %s not found.\n", client_name);
-                }
+		if (status & JackFailure) {
+			fprintf (stderr, "client %s not found.\n", client_name);
+		}
 		exit (2);
 	}
 #endif
@@ -85,11 +89,10 @@ main (int argc, char *argv[])
 	/* now, unload the internal client */
 	status = jack_internal_client_unload (client, intclient);
 	if (status & JackFailure) {
-                if (status & JackInvalidOption) {
-                        fprintf (stderr, "I'm sorry Dave, I can't do that\n");
-                } else if (status & JackNoSuchClient) {
-			fprintf (stderr, "client %s is gone.\n",
-				 client_name);
+		if (status & JackInvalidOption) {
+			fprintf (stderr, "I'm sorry Dave, I can't do that\n");
+		} else if (status & JackNoSuchClient) {
+			fprintf (stderr, "client %s is gone.\n", client_name);
 		} else {
 			fprintf (stderr, "could not unload %s, "
 				 "returns 0x%2.0x\n", client_name, status);
@@ -98,9 +101,7 @@ main (int argc, char *argv[])
 	} else {
 		fprintf (stdout, "%s unloaded.\n", client_name);
 	}
-    
-    jack_client_close(client);
+
+	jack_client_close(client);
 	return 0;
 }
-	
-		

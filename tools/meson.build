@@ -74,6 +74,7 @@ exe_jack_load = executable(
 
 exe_jack_unload = executable(
   'jack_unload',
+  c_args: c_args_common,
   sources: ['ipunload.c'],
   dependencies: [dep_jack],
   install: true
