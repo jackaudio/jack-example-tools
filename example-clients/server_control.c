@@ -16,6 +16,10 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#if !defined(__JACK1__) && !defined(__JACK2__)
+# error neither __JACK1__ or __JACK2__ is defined, this cannot happen
+#endif
+
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
