@@ -114,7 +114,7 @@ static int xrun_recovery(snd_pcm_t *handle, int err) {
 	if (err == -EPIPE) {	/* under-run */
 		err = snd_pcm_prepare(handle);
 		if (err < 0)
-			printf("Can't recovery from underrun, prepare failed: %s\n", snd_strerror(err));
+			printf("Can't recover from underrun, prepare failed: %s\n", snd_strerror(err));
 		return 0;
 	} else if (err == -ESTRPIPE) {
 		while ((err = snd_pcm_resume(handle)) == -EAGAIN)
@@ -122,7 +122,7 @@ static int xrun_recovery(snd_pcm_t *handle, int err) {
 		if (err < 0) {
 			err = snd_pcm_prepare(handle);
 			if (err < 0)
-				printf("Can't recovery from suspend, prepare failed: %s\n", snd_strerror(err));
+				printf("Can't recover from suspend, prepare failed: %s\n", snd_strerror(err));
 		}
 		return 0;
 	}
@@ -197,8 +197,8 @@ static int set_hwparams(snd_pcm_t *handle, snd_pcm_hw_params_t *params, snd_pcm_
 		return err;
 	}
 	if (rrate != rate) {
-		printf("Rate doesn't match (requested %iHz, get %iHz)\n", rate, rrate);
-		return -EINVAL;
+		printf("WARNING: Rate doesn't match (requested %iHz, get %iHz)\n", rate, rrate);
+		sample_rate = rrate;
 	}
 	/* set the buffer time */
 
@@ -610,6 +610,7 @@ void printUsage() {
 fprintf(stderr, "usage: alsa_out [options]\n"
 		"\n"
 		"  -j <jack name> - client name\n"
+		"  -S <server name> - server to connect\n"
 		"  -d <alsa_device> \n"
 		"  -c <channels> \n"
 		"  -p <period_size> \n"
@@ -777,7 +778,7 @@ int main (int argc, char *argv[]) {
 	jack_buffer_size = jack_get_buffer_size( client );
 	// Setup target delay and max_diff for the normal user, who does not play with them...
 	if( !target_delay ) 
-	target_delay = (num_periods*period_size / 2) - jack_buffer_size/2;
+		target_delay = (num_periods*period_size / 2) - jack_buffer_size/2;
 
 	if( !max_diff )
 		max_diff = target_delay;

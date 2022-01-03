@@ -296,7 +296,7 @@ static snd_pcm_t *open_audiofd( const char *device_name, int capture, int rate, 
 	}
 	if ((err = set_swparams(handle, swparams, period)) < 0) {
 		printf("Setting of swparams failed: %s\n", snd_strerror(err));
-	return NULL;
+		return NULL;
 	}
 
 	snd_pcm_start( handle );
@@ -361,7 +361,7 @@ int process (jack_nframes_t nframes, void *arg) {
 
 	delay = snd_pcm_avail( alsa_handle );
 
-	delay -= round( jack_frames_since_cycle_start( client ) / static_resample_factor );
+	delay -= round( jack_frames_since_cycle_start( client ) * static_resample_factor );
 	// Do it the hard way.
 	// this is for compensating xruns etc...
 
@@ -443,7 +443,7 @@ int process (jack_nframes_t nframes, void *arg) {
 	if( current_resample_factor > resample_upper_limit ) current_resample_factor = resample_upper_limit;
 
 	// Now Calculate how many samples we need.
-	rlen = ceil( ((double)nframes) / current_resample_factor )+2;
+	rlen = ceil( ((double)nframes) * current_resample_factor )+2;
 	assert( rlen > 2 );
 
 	// Calculate resample_mean so we can init ourselves to saner values.
@@ -518,7 +518,7 @@ latency_cb (jack_latency_callback_mode_t mode, void *arg)
 	jack_latency_range_t range;
 	JSList *node;
 
-	range.min = range.max = round(target_delay * static_resample_factor);
+	range.min = range.max = round(target_delay / static_resample_factor);
 
 	if (mode == JackCaptureLatency) {
 		for (node = capture_ports; node; node = jack_slist_next (node)) {
@@ -540,7 +540,7 @@ latency_cb (jack_latency_callback_mode_t mode, void *arg)
 
 void alloc_ports( int n_capture, int n_playback ) {
 
-	int port_flags = JackPortIsOutput;
+	int port_flags = JackPortIsOutput | JackPortIsPhysical | JackPortIsTerminal;
 	int chn;
 	jack_port_t *port;
 	char buf[32];
@@ -635,8 +635,8 @@ sigterm_handler( int signal )
 
 int main (int argc, char *argv[]) {
 	char jack_name[30] = "alsa_in";
-	char *server_name = NULL;
 	int jack_opts = 0;
+	char *server_name = NULL;
 
 	extern char *optarg;
 	extern int optind, optopt;
@@ -702,7 +702,7 @@ int main (int argc, char *argv[]) {
 				"Option -%c requires an operand\n", optopt);
 			errflg++;
 			break;
-			case '?':
+		case '?':
 			fprintf(stderr,
 				"Unrecognized option: -%c\n", optopt);
 			errflg++;
@@ -758,7 +758,7 @@ int main (int argc, char *argv[]) {
 
 	printf( "selected sample format: %s\n", formats[format].name );
 
-	static_resample_factor = (double) jack_sample_rate / (double) sample_rate;
+	static_resample_factor =  (double) sample_rate / (double) jack_sample_rate;
 	resample_lower_limit = static_resample_factor * 0.25;
 	resample_upper_limit = static_resample_factor * 4.0;
 	resample_mean = static_resample_factor;
