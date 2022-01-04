@@ -141,6 +141,7 @@ exe_jack_simple_session_client = executable(
   'jack_simple_session_client',
   sources: ['simple_session_client.c'],
   dependencies: [dep_jack],
+  c_args: ['-Wno-deprecated-declarations'],
   install: false
 )
 

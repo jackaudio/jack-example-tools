@@ -153,6 +153,7 @@ exe_jack_session_notify = executable(
   'jack_session_notify',
   sources: ['session_notify.c'],
   dependencies: [dep_jack],
+  c_args: ['-Wno-deprecated-declarations'],
   install: false
 )
 
