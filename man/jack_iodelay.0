@@ -1,4 +1,4 @@
-.TH JACK_IODELAY "1" "!DATE!" "!VERSION!"
+.TH JACK_IODELAY "1" "@DATE@" "@VERSION@"
 .SH NAME
 jack_iodelay \- JACK toolkit client to measure roundtrip latency
 .SH SYNOPSIS

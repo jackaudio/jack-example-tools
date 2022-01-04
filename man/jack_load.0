@@ -1,4 +1,4 @@
-.TH JACK_LOAD "1" "!DATE!" "!VERSION!"
+.TH JACK_LOAD "1" "@DATE@" "@VERSION@"
 .SH NAME
 jack_load \- JACK toolkit client for loading in-process clients
 .SH SYNOPSIS

@@ -1,4 +1,4 @@
-.TH JACK_FREEWHEEL "1" "!DATE!" "!VERSION!"
+.TH JACK_FREEWHEEL "1" "@DATE@" "@VERSION@"
 .SH NAME
 jack_freewheel \- JACK toolkit client to control freewheeling mode
 .SH SYNOPSIS

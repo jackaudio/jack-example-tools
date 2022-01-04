@@ -1,4 +1,4 @@
-.TH JACK_METRO "1" "!DATE!" "!VERSION!"
+.TH JACK_METRO "1" "@DATE@" "@VERSION@"
 .SH NAME
 jack_metro \- JACK toolkit metronome
 .SH SYNOPSIS

@@ -1,4 +1,4 @@
-.TH JACK_PROPERTY "1" "!DATE!" "!VERSION!"
+.TH JACK_PROPERTY "1" "@DATE@" "@VERSION@"
 .SH NAME
 jack_property \- JACK client to list, set and delete metadata information
 .SH SYNOPSIS
