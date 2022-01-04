@@ -156,11 +156,18 @@ exe_jack_session_notify = executable(
   install: false
 )
 
+jack_transport_c_args = c_args_common
+jack_transport_deps = [dep_jack]
+if readline_support
+  jack_transport_c_args += ['-DHAVE_READLINE']
+  jack_transport_deps += [dep_readline]
+endif
+
 exe_jack_transport = executable(
   'jack_transport',
-  c_args: c_args_common + ['-DHAVE_READLINE'],
+  c_args: jack_transport_c_args,
   sources: ['transport.c'],
-  dependencies: [dep_jack, dep_readline],
+  dependencies: jack_transport_deps,
   install: true
 )
 
