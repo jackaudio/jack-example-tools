@@ -1,4 +1,4 @@
-.TH JACK_TRANSPORT "1" "!DATE!" "!VERSION!"
+.TH JACK_TRANSPORT "1" "@DATE@" "@VERSION@"
 .SH NAME
 jack_transport \- JACK toolkit client for transport control
 .SH SYNOPSIS

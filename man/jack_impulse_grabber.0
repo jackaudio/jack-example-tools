@@ -1,4 +1,4 @@
-.TH JACK_IMPULSE_GRABBER "1" "!DATE!" "!VERSION!"
+.TH JACK_IMPULSE_GRABBER "1" "@DATE@" "@VERSION@"
 .SH NAME
 jack_impulse_grabber \- JACK toolkit client to grab an impulse (response)
 .SH SYNOPSIS

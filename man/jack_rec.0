@@ -1,4 +1,4 @@
-.TH JACK_REC "1" "!DATE!" "!VERSION!"
+.TH JACK_REC "1" "@DATE@" "@VERSION@"
 .SH NAME
 jack_rec \- JACK toolkit client for recording audio
 .SH SYNOPSIS

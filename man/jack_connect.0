@@ -1,4 +1,4 @@
-.TH JACK_CONNECT "1" "!DATE!" "!VERSION!"
+.TH JACK_CONNECT "1" "@DATE@" "@VERSION@"
 .SH NAME
 \fBjack_connect\fR, \fBjack_disconnect\fR \- JACK toolkit clients for connecting & disconnecting ports
 .SH SYNOPSIS

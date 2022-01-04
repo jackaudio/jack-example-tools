@@ -1,4 +1,4 @@
-.TH JACK_LSP "1" "!DATE!" "!VERSION!"
+.TH JACK_LSP "1" "@DATE@" "@VERSION@"
 .SH NAME
 jack_lsp \- JACK toolkit client to list information on ports
 .SH SYNOPSIS

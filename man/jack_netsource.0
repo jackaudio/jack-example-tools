@@ -1,4 +1,4 @@
-.TH JACK_NETSOURCE "1" "!DATE!" "!VERSION!"
+.TH JACK_NETSOURCE "1" "@DATE@" "@VERSION@"
 .SH NAME
 jack_netsource \- Netjack Master client for one slave
 .SH SYNOPSIS

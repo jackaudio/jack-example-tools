@@ -1,4 +1,4 @@
-.TH JACK_WAIT "1" "!DATE!" "!VERSION!"
+.TH JACK_WAIT "1" "@DATE@" "@VERSION@"
 .SH NAME
 jack_wait \- JACK toolkit client to check and wait for existence/exit of jackd.  
 .SH SYNOPSIS
