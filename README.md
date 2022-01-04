@@ -22,16 +22,24 @@ However, testing is very much welcomed!*
 
 The project requires the following dependencies:
 
-* [alsa-lib](https://www.alsa-project.org/wiki/Main_Page) (optional buildtime/
-  runtime dependency for `alsa_in` and `alsa_out`)
-* [jack1](https://github.com/jackaudio/jack1) or [jack2](https://github.com/jackaudio/jack2)
+* [alsa-lib](https://www.alsa-project.org/wiki/Main_Page) (required when
+  building `alsa_in` and `alsa_out` or ZALSA internal clients)
+* [jack1](https://github.com/jackaudio/jack1) or
+  [jack2](https://github.com/jackaudio/jack2)
 * [opus](https://www.opus-codec.org/) (optional buildtime/ runtime dependency
   for `jack_netsource`)
-* [readline](https://tiswww.case.edu/php/chet/readline/rltop.html)
-* [libsamplerate](https://libsndfile.github.io/libsamplerate/)
-* [libsndfile](https://libsndfile.github.io/libsndfile/)
-* [libzita-alsa-pcmi](https://kokkinizita.linuxaudio.org/linuxaudio/)
-* [libzita-resampler](https://kokkinizita.linuxaudio.org/linuxaudio/)
+* [readline](https://tiswww.case.edu/php/chet/readline/rltop.html) (optional
+  buildtime/ runtime dependency for `jack_transport`)
+* [libsamplerate](https://libsndfile.github.io/libsamplerate/) (required when
+  building `alsa_in` and `alsa_out` or `jack_netsource`)
+* [libsndfile](https://libsndfile.github.io/libsndfile/) (required when
+  building `jack_rec`)
+* [libzita-alsa-pcmi](https://kokkinizita.linuxaudio.org/linuxaudio/) (required
+  when building ZALSA internal clients)
+* [libzita-resampler](https://kokkinizita.linuxaudio.org/linuxaudio/) (required
+  when building ZALSA internal clients)
+
+For all available options please refer to [meson_options.txt](meson_options.txt).
 
 ## Building
 
