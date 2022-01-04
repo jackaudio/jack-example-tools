@@ -27,7 +27,7 @@ jack_version = dep_jack.version()
 lib_jackserver = cc.find_library('jackserver', required: true)
 lib_jacknet = cc.find_library('jacknet', required: get_option('jack_net'))
 dep_opus = dependency('opus', version: '>=0.9.0', required: get_option('opus_support'))
-dep_readline = dependency('readline')
+dep_readline = dependency('readline', required: get_option('readline_support'))
 dep_samplerate = dependency('samplerate', required: libsamplerate_required)
 dep_sndfile = dependency('sndfile', required: get_option('jack_rec'))
 dep_threads = dependency('threads')
@@ -56,6 +56,11 @@ if get_option('opus_support').enabled() or (get_option('opus_support').auto() an
   opus_support = true
 endif
 
+readline_support = false
+if get_option('readline_support').enabled() or (get_option('readline_support').auto() and dep_readline.found())
+  readline_support = true
+endif
+
 build_jack_rec = false
 if get_option('jack_rec').enabled() or (get_option('jack_rec').auto() and dep_sndfile.found())
   build_jack_rec = true
@@ -76,6 +81,7 @@ if build_jack_netsource
   message('Build jack_netsource with opus support: ' + opus_support.to_string())
 endif
 message('Build jack_rec executable: ' + build_jack_rec.to_string())
+message('Build jack_transport with readline support: ' + readline_support.to_string())
 message('Build ZALSA internal clients: ' + build_zalsa.to_string())
 
 conf_data = configuration_data()
