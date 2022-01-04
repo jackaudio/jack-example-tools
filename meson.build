@@ -79,10 +79,11 @@ message('Build jack_rec executable: ' + build_jack_rec.to_string())
 message('Build ZALSA internal clients: ' + build_zalsa.to_string())
 
 conf_data = configuration_data()
-conf_data.set('version', meson.project_version())
+conf_data.set('VERSION', meson.project_version())
+conf_data.set('DATE', '2022')
 
 c_args_common = [
-  '-D__PROJECT_VERSION__="@0@"'.format(conf_data.get('version')),
+  '-D__PROJECT_VERSION__="@0@"'.format(conf_data.get('VERSION')),
 ]
 
 if jack_version.version_compare('>=0.109.0') and jack_version.version_compare('<0.200.0')
