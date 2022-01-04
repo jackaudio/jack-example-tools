@@ -12,12 +12,14 @@ exe_jack_cpu_load = executable(
   install: true
 )
 
-exe_jack_rec = executable(
-  'jack_rec',
-  sources: ['capture_client.c'],
-  dependencies: [dep_jack, dep_sndfile, dep_threads],
-  install: true
-)
+if build_jack_rec
+  exe_jack_rec = executable(
+    'jack_rec',
+    sources: ['capture_client.c'],
+    dependencies: [dep_jack, dep_sndfile, dep_threads],
+    install: true
+  )
+endif
 
 exe_jack_impulse_grabber = executable(
   'jack_impulse_grabber',
@@ -88,7 +90,7 @@ exe_jack_midi_latency_test = executable(
   install: true
 )
 
-if lib_jacknet.found()
+if build_jack_net
   exe_jack_net_master = executable(
     'jack_net_master',
     sources: ['netmaster.c'],
