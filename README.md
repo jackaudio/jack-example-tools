@@ -5,27 +5,16 @@ been tracked in the
 [example-clients](https://github.com/jackaudio/example-clients) and
 [tools](https://github.com/jackaudio/tools) repositories in the past.
 
-**WARNING**:
-
-*In its current form, this project has conflicting files with the
-[jack1](https://github.com/jackaudio/jack1) and
-[jack2](https://github.com/jackaudio/jack2) projects (when installed).
-The efforts for consolidating and eventually removing the example-clients and
-tools from both projects are tracked in
-[jackaudio/jack1#109](https://github.com/jackaudio/jack1/issues/109) and
-[jackaudio/jack2#805](https://github.com/jackaudio/jack2/issues/805).
-The installation and use of this project is therefore deemed experimental until
-both issues are resolved.
-However, testing is very much welcomed!*
-
 ## Dependencies
 
 The project requires the following dependencies:
 
 * [alsa-lib](https://www.alsa-project.org/wiki/Main_Page) (required when
   building `alsa_in` and `alsa_out` or ZALSA internal clients)
-* [jack1](https://github.com/jackaudio/jack1) or
-  [jack2](https://github.com/jackaudio/jack2)
+* [jack1](https://github.com/jackaudio/jack1) >= 0.126.0,
+  [jack2](https://github.com/jackaudio/jack2) >= 1.9.20, or
+  [pipewire-jack](https://gitlab.freedesktop.org/pipewire/pipewire) >= 0.3.44
+  (other versions may work but are not supported)
 * [opus](https://www.opus-codec.org/) (optional buildtime/ runtime dependency
   for `jack_netsource`)
 * [readline](https://tiswww.case.edu/php/chet/readline/rltop.html) (optional
@@ -39,7 +28,9 @@ The project requires the following dependencies:
 * [libzita-resampler](https://kokkinizita.linuxaudio.org/linuxaudio/) (required
   when building ZALSA internal clients)
 
-For all available options please refer to [meson_options.txt](meson_options.txt).
+For all available options please refer to
+[meson_options.txt](meson_options.txt) or run `meson configure` in the project
+directory.
 
 ## Building
 
