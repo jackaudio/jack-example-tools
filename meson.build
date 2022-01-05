@@ -1,7 +1,7 @@
 project(
   'jack-example-tools',
   ['c', 'cpp'],
-  meson_version: '>=0.50.0',
+  meson_version: '>=0.58.0',
   license: ['GPL2+'],
   version: '0.1.0',
 )
@@ -21,11 +21,59 @@ if get_option('alsa_in_out').enabled() or get_option('jack_netsource').enabled()
   libsamplerate_required = true
 endif
 
-dep_alsa = dependency('alsa', version: '>=1.0.18', required: alsa_required)
 dep_jack = dependency('jack')
-jack_version = dep_jack.version()
+
+jack_implementation = ''
+jack_implementation = dep_jack.get_variable('jack_implementation')
+if jack_implementation == ''
+  warning('No compatible jack implementation detected. This may mean conflicting files when installing!')
+endif
+
+has_jack1_internal_client = cc.compiles(
+  '''
+  #include <stdio.h>
+  #include <jack/jack.h>
+  #include <jack/intclient.h>
+
+  int main (int argc, char *argv[]) {
+    const char *client_name;
+    jack_client_t *client;
+    jack_status_t status;
+    jack_intclient_t intclient;
+
+    client_name = "foo";
+    client = jack_client_open(client_name, JackNoStartServer, &status);
+    jack_internal_client_handle(client, client_name, &status, &intclient);
+  }
+  '''
+)
+message('Provides jack1-style jack_internal_client_handle(): ' + has_jack1_internal_client.to_string())
+
+has_jack2_internal_client = cc.compiles(
+  '''
+  #include <jack/jack.h>
+  #include <jack/intclient.h>
+
+  int main (int argc, char *argv[]) {
+    const char *client_name;
+    jack_client_t *client;
+    jack_status_t status;
+    jack_intclient_t intclient;
+
+    client_name = "foo";
+    client = jack_client_open(client_name, JackNoStartServer, &status);
+    intclient = jack_internal_client_handle (client, client_name, &status);
+  }
+  '''
+)
+message('Provides jack2-style jack_internal_client_handle(): ' + has_jack2_internal_client.to_string())
+
 lib_jackserver = cc.find_library('jackserver', required: true)
+has_jackctl_server_create2 = cc.has_function('jackctl_server_create2', dependencies: lib_jackserver, prefix: '#include <jack/control.h>')
+
 lib_jacknet = cc.find_library('jacknet', required: get_option('jack_net'))
+
+dep_alsa = dependency('alsa', version: '>=1.0.18', required: alsa_required)
 dep_opus = dependency('opus', version: '>=0.9.0', required: get_option('opus_support'))
 dep_readline = dependency('readline', required: get_option('readline_support'))
 dep_samplerate = dependency('samplerate', required: libsamplerate_required)
@@ -91,15 +139,6 @@ conf_data.set('DATE', '2022')
 c_args_common = [
   '-D__PROJECT_VERSION__="@0@"'.format(conf_data.get('VERSION')),
 ]
-
-if jack_version.version_compare('>=0.109.0') and jack_version.version_compare('<0.200.0')
-  message('Detected jack1 compatible headers')
-  c_args_common += ['-D__JACK1__']
-endif
-if (jack_version.version_compare('>=0.58') and jack_version.version_compare('<=0.71')) or jack_version.version_compare('>=1.9.0')
-  message('Detected jack2 compatible headers')
-  c_args_common += ['-D__JACK2__']
-endif
 
 subdir('tools')
 subdir('example-clients')

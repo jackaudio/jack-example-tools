@@ -74,9 +74,15 @@ exe_jack_load = executable(
   install: true
 )
 
+if has_jack1_internal_client and not has_jack2_internal_client
+  c_args_jack_unload = c_args_common + ['-D__JACK1__']
+endif
+if not has_jack1_internal_client and has_jack2_internal_client
+  c_args_jack_unload = c_args_common + ['-D__JACK2__']
+endif
 exe_jack_unload = executable(
   'jack_unload',
-  c_args: c_args_common,
+  c_args: c_args_jack_unload,
   sources: ['ipunload.c'],
   dependencies: [dep_jack],
   install: true
