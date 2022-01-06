@@ -39,7 +39,6 @@
 #define _GNU_SOURCE
 #endif
 
-#include <alloca.h>
 #include <math.h>
 #include <stdio.h>
 #include <memory.h>

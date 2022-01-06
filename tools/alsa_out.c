@@ -4,7 +4,6 @@
  * as they would be used by many applications.
  */
 
-#include <alloca.h>
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
