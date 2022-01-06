@@ -19,6 +19,11 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#if _MSC_VER
+#include <malloc.h>
+#define alloca _alloca
+#endif /* _MSC_VER */
+
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>

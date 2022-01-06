@@ -39,6 +39,11 @@
 #define _GNU_SOURCE
 #endif
 
+#if _MSC_VER
+#include <malloc.h>
+#define alloca _alloca
+#endif /* _MSC_VER */
+
 #include <math.h>
 #include <stdio.h>
 #include <memory.h>

@@ -4,6 +4,11 @@
  * as they would be used by many applications.
  */
 
+#if _MSC_VER
+#include <malloc.h>
+#define alloca _alloca
+#endif /* _MSC_VER */
+
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
