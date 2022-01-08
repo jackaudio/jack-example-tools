@@ -10,6 +10,11 @@
 - Add jack2-only example-clients
 - Add license files for example-clients and tools and imported zalsa files
 - Add meson build system
+- Add CI builds against jack1 and jack2 in an Arch Linux container
+- Add supported jack version to project description: jack1 (>=0.126.0), jack2
+  (>=1.9.20), pipewire-jack (>=0.3.44)
+- Add support to compile against different jack implementations based on
+  available features and function definitions
 
 ### Changed
 - Consolidate example-clients and tools with the versions in
