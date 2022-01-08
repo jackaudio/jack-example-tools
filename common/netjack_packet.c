@@ -39,11 +39,6 @@
 #define _GNU_SOURCE
 #endif
 
-#if _MSC_VER
-#include <malloc.h>
-#define alloca _alloca
-#endif /* _MSC_VER */
-
 #include <math.h>
 #include <stdio.h>
 #include <memory.h>
@@ -503,7 +498,7 @@ netjack_poll_deadline (int sockfd, jack_time_t deadline)
 void
 packet_cache_drain_socket( packet_cache *pcache, int sockfd )
 {
-    char *rx_packet = alloca (pcache->mtu);
+    char rx_packet[pcache->mtu];
     jacknet_packet_header *pkthdr = (jacknet_packet_header *) rx_packet;
     int rcv_len;
     jack_nframes_t framecnt;
@@ -749,10 +744,10 @@ void
 netjack_sendto (int sockfd, char *packet_buf, int pkt_size, int flags, struct sockaddr *addr, int addr_size, int mtu)
 {
     int frag_cnt = 0;
-    char *tx_packet, *dataX;
+    char *dataX;
     jacknet_packet_header *pkthdr;
 
-    tx_packet = alloca (mtu + 10);
+    char tx_packet[mtu + 10];
     dataX = tx_packet + sizeof (jacknet_packet_header);
     pkthdr = (jacknet_packet_header *) tx_packet;
 
@@ -1010,7 +1005,7 @@ render_payload_to_jack_ports_16bit (void *packet_payload, jack_nframes_t net_per
         jack_port_t *port = (jack_port_t *) node->data;
         jack_default_audio_sample_t* buf = jack_port_get_buffer (port, nframes);
 
-        float *floatbuf = alloca (sizeof(float) * net_period_down);
+        float floatbuf[sizeof(float) * net_period_down];
         const char *porttype = jack_port_type (port);
 
         if (jack_port_is_audio (porttype)) {
@@ -1072,7 +1067,7 @@ render_jack_ports_to_payload_16bit (JSList *playback_ports, JSList *playback_src
             if (net_period_up != nframes) {
                 SRC_STATE *src_state = src_node->data;
 
-                float *floatbuf = alloca (sizeof(float) * net_period_up);
+                float floatbuf[sizeof(float) * net_period_up];
 
                 src.data_in = buf;
                 src.input_frames = nframes;
@@ -1128,7 +1123,7 @@ render_payload_to_jack_ports_8bit (void *packet_payload, jack_nframes_t net_peri
         jack_port_t *port = (jack_port_t *) node->data;
         jack_default_audio_sample_t* buf = jack_port_get_buffer (port, nframes);
 
-        float *floatbuf = alloca (sizeof (float) * net_period_down);
+        float floatbuf[sizeof(float) * net_period_down];
         const char *porttype = jack_port_type (port);
 
         if (jack_port_is_audio(porttype)) {
@@ -1189,7 +1184,7 @@ render_jack_ports_to_payload_8bit (JSList *playback_ports, JSList *playback_srcs
 
                 SRC_STATE *src_state = src_node->data;
 
-                float *floatbuf = alloca (sizeof (float) * net_period_up);
+                float floatbuf[sizeof(float) * net_period_up];
 
                 src.data_in = buf;
                 src.input_frames = nframes;
@@ -1285,7 +1280,7 @@ render_jack_ports_to_payload_opus (JSList *playback_ports, JSList *playback_srcs
             // audio port, encode opus data.
 
             int encoded_bytes;
-            float *floatbuf = alloca (sizeof(float) * nframes );
+            float floatbuf[sizeof(float) * nframes];
             memcpy( floatbuf, buf, nframes * sizeof(float) );
             OpusCustomEncoder *encoder = (OpusCustomEncoder*) src_node->data;
             encoded_bytes = opus_custom_encode_float( encoder, floatbuf, nframes, packet_bufX + CDO, net_period_up - CDO );

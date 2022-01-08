@@ -259,7 +259,7 @@ process (jack_nframes_t nframes, void *arg)
 
     jack_position_t local_trans_pos;
 
-    uint32_t *packet_buf_tx, *packet_bufX;
+    uint32_t *packet_bufX;
     uint32_t *rx_packet_ptr;
     jack_time_t packet_recv_timestamp;
 
@@ -272,7 +272,7 @@ process (jack_nframes_t nframes, void *arg)
     tx_bufsize =  get_sample_size (bitdepth) * playback_channels * net_period + sizeof (jacknet_packet_header);
 
     /* Allocate a buffer where both In and Out Buffer will fit */
-    packet_buf_tx = alloca (tx_bufsize);
+    uint32_t packet_buf_tx[tx_bufsize];
 
     jacknet_packet_header *pkthdr_tx = (jacknet_packet_header *) packet_buf_tx;
 
