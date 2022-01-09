@@ -81,6 +81,7 @@ dep_sndfile = dependency('sndfile', required: get_option('jack_rec'))
 dep_threads = dependency('threads')
 lib_zita_alsa_pcmi = cc.find_library('zita-alsa-pcmi', required: get_option('zalsa'))
 lib_zita_resampler = cc.find_library('zita-resampler', required: get_option('zalsa'))
+has_ppoll = cc.has_function('ppoll', prefix: '#define _GNU_SOURCE\n#include <sys/poll.h>')
 
 build_alsa_in_out = false
 if get_option('alsa_in_out').enabled() or (
