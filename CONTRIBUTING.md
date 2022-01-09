@@ -22,6 +22,23 @@ systems as possible.
 
 Changes to the project may only be merged if the CI finishes successfully.
 
+## Releases
+
+New releases are created by
+
+* adding a commit that
+  * updates the project version in [meson.build](meson.build)
+  * updates the [changelog](CHANGELOG.md) to the current version while adding a
+    new (empty) subsection for `[Unreleased]` modifications with `Added`,
+    `Changed` and `Deleted` subsubsections.
+* tagging the commit using a signed tag (i.e. `tag -s <VERSION>`) according to
+  the new project version
+
+### Versioning
+
+The project's version is defined as `<MAJOR>` (e.g. `1` or `2`), which is
+reflected both in the build system and the tag.
+
 ## Testing
 
 Contributors are expected to test their changes to the project on as many
