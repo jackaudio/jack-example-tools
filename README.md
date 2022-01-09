@@ -60,6 +60,25 @@ run as root), while honoring the **DESTDIR** environment variable:
 DESTDIR="/some/other/location" meson install -C build
 ```
 
+## Releases
+
+[Releases of
+jack-example-tools](https://github.com/jackaudio/jack-example-tools/tags) are
+created by its current maintainer [Filipe Coelho](https://github.com/falktx)
+(`62B11043D2F6EB6672D93103CDBAA37ABC74FBA0`).
+
+To verify a tag, first import the relevant PGP key:
+
+```
+gpg --auto-key-locate wkd,keyserver --search-keys falktx@falktx.com
+```
+
+Afterwards a tag can be verified from a clone of this repository:
+
+```
+gpg --verify-tag <tag>
+```
+
 ## License
 
 All files (unless noted otherwise) are licensed under the terms of the
