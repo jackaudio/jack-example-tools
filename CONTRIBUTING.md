@@ -10,7 +10,7 @@ Problems with and feature requests for the project may be reported in the
 [issue tracker](https://github.com/jackaudio/jack-example-tools/issues).
 
 Changes to the code-base can be provided via [pull
-requests]((https://github.com/jackaudio/jack-example-tools/pulls).
+requests](https://github.com/jackaudio/jack-example-tools/pulls).
 
 ## Continuous Integration
 
