@@ -126,7 +126,7 @@ if build_jack_netsource
     c_args_netsource += ['-DHAVE_OPUS']
     deps_netsource += [dep_opus]
   endif
-  if cc.has_function('ppoll', prefix : '#define _GNU_SOURCE\n#include <sys/poll.h>')
+  if has_ppoll
     c_args_netsource += ['-DHAVE_PPOLL']
   endif
 
