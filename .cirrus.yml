@@ -1,0 +1,35 @@
+task:
+  freebsd_instance:
+    matrix:
+      - image_family: freebsd-12-3
+      - image_family: freebsd-13-0
+
+  environment:
+    CFLAGS: -O2 -pipe -fPIC -fstack-protector-strong -fno-strict-aliasing -I/usr/local/include
+    CPPFLAGS: -O2 -pipe -fPIC -fstack-protector-strong -fno-strict-aliasing -I/usr/local/include
+    LDFLAGS: -lreadline -L/usr/local/lib -fstack-protector-strong
+
+  # Install jack2 from source - replace by package once 1.9.20 is out.
+  jack2_dependencies_script:
+    - pkg install -y pkgconf python3 libsndfile libsamplerate libsysinfo readline alsa-lib dbus expat opus git
+  jack2_source_script:
+    - git clone --branch develop --depth 1 https://github.com/jackaudio/jack2.git /jack2
+  jack2_config_script:
+    - cd /jack2 && python3 ./waf configure --celt=no --sndfile=yes --samplerate=yes --alsa=yes --dbus --classic --autostart=dbus --readline=yes --opus=yes --example-tools=no --prefix /usr/local --pkgconfigdir libdata/pkgconfig
+  jack2_build_script:
+    - cd /jack2 && python3 ./waf
+  jack2_install_script:
+    - cd /jack2 && python3 ./waf install
+
+  prepare_script:
+    - mkdir /Install
+  dependencies_script:
+    - pkg install -y pkgconf python3 libsndfile libsamplerate libsysinfo readline alsa-lib zita-alsa-pcmi zita-resampler opus meson ninja
+  config_script:
+    - meson --prefix /Install --mandir man --buildtype release --strip build
+  build_script:
+    # Workaround for missing alloca headers - remove when resolved.
+    - touch build/tools/alloca.h
+    - ninja -C build
+  install_script:
+    - DESTDIR="/Install" meson install -C build
