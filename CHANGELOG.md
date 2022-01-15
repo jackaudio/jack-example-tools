@@ -3,6 +3,14 @@
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Deleted
+
+## [1]
+
+### Added
 - Add legacy [example-clients](https://github.com/jackaudio/example-clients)
   and [tools](https://github.com/jackaudio/tools)
 - Add man pages for example-clients and tools from
