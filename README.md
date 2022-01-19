@@ -44,6 +44,10 @@ options](https://mesonbuild.com/Builtin-options.html#universal-options) (e.g.
 meson --prefix=/usr build
 ```
 
+**NOTE**: Currently it is not possible to use pipewire-jack to build tooling
+that requires **jack_net** support (see
+[#61](https://github.com/jackaudio/jack-example-tools/issues/61)).
+
 To build the applications and libraries [ninja](https://ninja-build.org/) is
 required:
 
