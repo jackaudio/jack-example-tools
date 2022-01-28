@@ -50,8 +50,7 @@ jobs:
         run: pacman --noconfirm -Syu alsa-lib base-devel celt meson opus readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
       - name: Install pipewire-jack
         run: pacman --noconfirm -S pipewire-jack
-      # disable jack_net support for now: https://github.com/jackaudio/jack-example-tools/issues/61
       - name: Build jack-example-tools
-        run: meson -Djack_net=disabled build && ninja -C build
+        run: meson build && ninja -C build
       - name: Install jack-example-tools
         run: ninja -C build install
