@@ -19,7 +19,7 @@ jobs:
         run: pacman --noconfirm -Syu alsa-lib base-devel celt meson opus readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
       - name: Install jack1
         run: |
-          printf "[pro-audio]\nServer = https://pkgbuild.com/~dvzrv/repos/pro-audio/\$arch\n" >> /etc/pacman.conf
+          printf "[pro-audio-legacy]\nServer = https://pkgbuild.com/~dvzrv/repos/pro-audio-legacy/\$arch\n" >> /etc/pacman.conf
           pacman -Syy
           pacman --noconfirm -S jack
       - name: Build jack-example-tools
