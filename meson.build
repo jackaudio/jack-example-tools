@@ -62,7 +62,7 @@ has_jack2_internal_client = cc.compiles(
 
     client_name = "foo";
     client = jack_client_open(client_name, JackNoStartServer, &status);
-    intclient = jack_internal_client_handle (client, client_name, &status);
+    intclient = jack_internal_client_handle(client, client_name, &status);
   }
   '''
 )

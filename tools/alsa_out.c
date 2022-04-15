@@ -754,7 +754,7 @@ int main (int argc, char *argv[]) {
 	if( !sample_rate )
 		sample_rate = jack_sample_rate;
 
-	static_resample_factor =  (double) sample_rate / (double) jack_sample_rate;
+	static_resample_factor = (double) sample_rate / (double) jack_sample_rate;
 	resample_lower_limit = static_resample_factor * 0.25;
 	resample_upper_limit = static_resample_factor * 4.0;
 	resample_mean = static_resample_factor;
