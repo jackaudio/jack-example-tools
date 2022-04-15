@@ -1,12 +1,11 @@
 # Changelog
 
-## [Unreleased]
+## [2]
 
-### Added
-
-### Changed
-
-### Deleted
+### Fixes
+- Fix crashes in `midi_latency_test`
+- Fix regression in `alsa_in` that broke resampling (reverted code to known good state)
+- Fix usage help string in `midiseq`
 
 ## [1]
 
