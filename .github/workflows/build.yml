@@ -54,3 +54,13 @@ jobs:
         run: meson build && ninja -C build
       - name: Install jack-example-tools
         run: ninja -C build install
+  build_macos_latest:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: brew install jack meson opus pkg-config readline
+      - name: Build jack-example-tools
+        run: meson build && ninja -C build
+      - name: Install jack-example-tools
+        run: ninja -C build install
