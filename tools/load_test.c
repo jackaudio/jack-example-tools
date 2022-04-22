@@ -117,7 +117,11 @@ main (int argc, char *argv[])
 
 	jack_activate (client);
 
-	sleep( -1 );
+	#ifdef WIN32
+	Sleep (INFINITE);
+	#else
+	sleep (-1);
+	#endif
 
 	exit (0);
 }
