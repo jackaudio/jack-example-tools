@@ -110,6 +110,10 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env macos && popd
+          # NOTE these custom paths shouldn't be needed, as PawPaw already has them included, consider it a meson bug
+          export CFLAGS+=" -I${PAWPAW_PREFIX}/include"
+          export CXXFLAGS+=" -I${PAWPAW_PREFIX}/include"
+          export LDFLAGS+=" -L${PAWPAW_PREFIX}/lib"
           meson build || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
@@ -147,6 +151,10 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env macos-universal && popd
+          # NOTE these custom paths shouldn't be needed, as PawPaw already has them included, consider it a meson bug
+          export CFLAGS+=" -I${PAWPAW_PREFIX}/include"
+          export CXXFLAGS+=" -I${PAWPAW_PREFIX}/include"
+          export LDFLAGS+=" -L${PAWPAW_PREFIX}/lib"
           meson build || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
@@ -190,6 +198,10 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env win32 && popd
+          # NOTE these custom paths shouldn't be needed, as PawPaw already has them included, consider it a meson bug
+          export CFLAGS+=" -I${PAWPAW_PREFIX}/include"
+          export CXXFLAGS+=" -I${PAWPAW_PREFIX}/include"
+          export LDFLAGS+=" -L${PAWPAW_PREFIX}/lib"
           meson build --cross-file PawPaw/setup/meson/win32.ini || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
@@ -233,6 +245,10 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env win64 && popd
+          # NOTE these custom paths shouldn't be needed, as PawPaw already has them included, consider it a meson bug
+          export CFLAGS+=" -I${PAWPAW_PREFIX}/include"
+          export CXXFLAGS+=" -I${PAWPAW_PREFIX}/include"
+          export LDFLAGS+=" -L${PAWPAW_PREFIX}/lib"
           meson build --cross-file PawPaw/setup/meson/win64.ini || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
