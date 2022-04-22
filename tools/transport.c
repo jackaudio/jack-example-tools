@@ -415,6 +415,7 @@ static char *stripwhite(char *string)
 	return s;
 }
 
+#if HAVE_READLINE
 static char *dupstr(char *s)
 {
 	char *r = malloc(strlen(s) + 1);
@@ -422,7 +423,6 @@ static char *dupstr(char *s)
 	return r;
 }
 
-#if HAVE_READLINE
 /* Readline generator function for command completion. */
 static char *command_generator (const char *text, int state)
 {
