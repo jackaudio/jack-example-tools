@@ -390,13 +390,14 @@ public:
 
 extern "C" {
 
-int
-jack_initialize (jack_client_t* client, const char* load_init)
+JACK_LIB_EXPORT
+int jack_initialize (jack_client_t* client, const char* load_init)
 {
 	zita_a2j *c = new zita_a2j();
 	return c->jack_initialize(client, load_init);
 }
 
+JACK_LIB_EXPORT
 void jack_finish (void* arg)
 {
 	if (!arg) return;

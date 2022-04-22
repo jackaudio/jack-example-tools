@@ -121,6 +121,7 @@ timecode (jack_transport_state_t state, jack_nframes_t nframes,
 }
 
 /* after internal client loaded */
+JACK_LIB_EXPORT
 int
 jack_initialize (jack_client_t *client, const char *load_init)
 {
@@ -150,6 +151,7 @@ jack_initialize (jack_client_t *client, const char *load_init)
 }
 
 /* before unloading */
+JACK_LIB_EXPORT
 void
 jack_finish (void *arg)
 {
