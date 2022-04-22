@@ -104,16 +104,20 @@ jobs:
         shell: bash
         run: |
           ./PawPaw/build-jack2.sh macos && ./PawPaw/.cleanup.sh macos
-      #- name: Build jack-example-tools
-        #shell: bash
-        #run: |
-          #pushd PawPaw && source local.env macos && popd
-          #meson build
-          #ninja -C build
-      #- name: Install jack-example-tools
-        #run: |
-          #pushd PawPaw && source local.env macos && popd
-          #ninja -C build install
+      - name: Build jack-example-tools
+        shell: bash
+        run: |
+          pushd PawPaw && source local.env macos && popd
+          export CFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
+          export CXXFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
+          export LDFLAGS+=" -L${PAWPAW_PREFIX}-jack2/lib"
+          export PKG_CONFIG_PATH+=":${PAWPAW_PREFIX}-jack2/lib/pkgconfig"
+          meson build
+          ninja -C build
+      - name: Install jack-example-tools
+        run: |
+          pushd PawPaw && source local.env macos && popd
+          ninja -C build install
   build_pawpaw_macos_universal:
     runs-on: macos-10.15
     steps:
@@ -141,16 +145,20 @@ jobs:
         shell: bash
         run: |
           ./PawPaw/build-jack2.sh macos-universal && ./PawPaw/.cleanup.sh macos-universal
-      #- name: Build jack-example-tools
-        #shell: bash
-        #run: |
-          #pushd PawPaw && source local.env macos-universal && popd
-          #meson build
-          #ninja -C build
-      #- name: Install jack-example-tools
-        #run: |
-          #pushd PawPaw && source local.env macos-universal && popd
-          #ninja -C build install
+      - name: Build jack-example-tools
+        shell: bash
+        run: |
+          pushd PawPaw && source local.env macos-universal && popd
+          export CFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
+          export CXXFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
+          export LDFLAGS+=" -L${PAWPAW_PREFIX}-jack2/lib"
+          export PKG_CONFIG_PATH+=":${PAWPAW_PREFIX}-jack2/lib/pkgconfig"
+          meson build
+          ninja -C build
+      - name: Install jack-example-tools
+        run: |
+          pushd PawPaw && source local.env macos-universal && popd
+          ninja -C build install
   build_pawpaw_win32:
     runs-on: ubuntu-20.04
     steps:
@@ -183,16 +191,20 @@ jobs:
         shell: bash
         run: |
           ./PawPaw/build-jack2.sh win32 && ./PawPaw/.cleanup.sh win32
-      #- name: Build jack-example-tools
-        #shell: bash
-        #run: |
-          #pushd PawPaw && source local.env win32 && popd
-          #meson build
-          #ninja -C build
-      #- name: Install jack-example-tools
-        #run: |
-          #pushd PawPaw && source local.env win32 && popd
-          #ninja -C build install
+      - name: Build jack-example-tools
+        shell: bash
+        run: |
+          pushd PawPaw && source local.env win32 && popd
+          export CFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
+          export CXXFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
+          export LDFLAGS+=" -L${PAWPAW_PREFIX}-jack2/lib"
+          export PKG_CONFIG_PATH+=":${PAWPAW_PREFIX}-jack2/lib/pkgconfig"
+          meson build
+          ninja -C build
+      - name: Install jack-example-tools
+        run: |
+          pushd PawPaw && source local.env win32 && popd
+          ninja -C build install
   build_pawpaw_win64:
     runs-on: ubuntu-20.04
     steps:
@@ -225,13 +237,17 @@ jobs:
         shell: bash
         run: |
           ./PawPaw/build-jack2.sh win64 && ./PawPaw/.cleanup.sh win64
-      #- name: Build jack-example-tools
-        #shell: bash
-        #run: |
-          #pushd PawPaw && source local.env win64 && popd
-          #meson build
-          #ninja -C build
-      #- name: Install jack-example-tools
-        #run: |
-          #pushd PawPaw && source local.env win64 && popd
-          #ninja -C build install
+      - name: Build jack-example-tools
+        shell: bash
+        run: |
+          pushd PawPaw && source local.env win64 && popd
+          export CFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
+          export CXXFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
+          export LDFLAGS+=" -L${PAWPAW_PREFIX}-jack2/lib"
+          export PKG_CONFIG_PATH+=":${PAWPAW_PREFIX}-jack2/lib/pkgconfig"
+          meson build
+          ninja -C build
+      - name: Install jack-example-tools
+        run: |
+          pushd PawPaw && source local.env win64 && popd
+          ninja -C build install
