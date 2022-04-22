@@ -422,6 +422,7 @@ static char *dupstr(char *s)
 	return r;
 }
 
+#if HAVE_READLINE
 /* Readline generator function for command completion. */
 static char *command_generator (const char *text, int state)
 {
@@ -447,6 +448,7 @@ static char *command_generator (const char *text, int state)
 
 	return (char *) NULL;		/* No names matched. */
 }
+#endif
 
 static void command_loop()
 {
