@@ -104,16 +104,16 @@ jobs:
         shell: bash
         run: |
           ./PawPaw/build-jack2.sh macos && ./PawPaw/.cleanup.sh macos
-      - name: Build jack-example-tools
-        shell: bash
-        run: |
-          pushd PawPaw && source local.env macos && popd
-          meson build
-          ninja -C build
-      - name: Install jack-example-tools
-        run: |
-          pushd PawPaw && source local.env macos && popd
-          ninja -C build install
+      #- name: Build jack-example-tools
+        #shell: bash
+        #run: |
+          #pushd PawPaw && source local.env macos && popd
+          #meson build
+          #ninja -C build
+      #- name: Install jack-example-tools
+        #run: |
+          #pushd PawPaw && source local.env macos && popd
+          #ninja -C build install
   build_pawpaw_macos_universal:
     runs-on: macos-10.15
     steps:
@@ -141,16 +141,16 @@ jobs:
         shell: bash
         run: |
           ./PawPaw/build-jack2.sh macos-universal && ./PawPaw/.cleanup.sh macos-universal
-      - name: Build jack-example-tools
-        shell: bash
-        run: |
-          pushd PawPaw && source local.env macos-universal && popd
-          meson build
-          ninja -C build
-      - name: Install jack-example-tools
-        run: |
-          pushd PawPaw && source local.env macos-universal && popd
-          ninja -C build install
+      #- name: Build jack-example-tools
+        #shell: bash
+        #run: |
+          #pushd PawPaw && source local.env macos-universal && popd
+          #meson build
+          #ninja -C build
+      #- name: Install jack-example-tools
+        #run: |
+          #pushd PawPaw && source local.env macos-universal && popd
+          #ninja -C build install
   build_pawpaw_win32:
     runs-on: ubuntu-20.04
     steps:
@@ -169,7 +169,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update -qq
-          sudo apt-get install -y autopoint build-essential curl cmake jq mingw-w64 \
+          sudo apt-get install -y autopoint build-essential curl cmake jq llvm mingw-w64 \
             binutils-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64 wine-stable:i386
       - name: Bootstrap win32 cross-compiled
         shell: bash
@@ -183,16 +183,16 @@ jobs:
         shell: bash
         run: |
           ./PawPaw/build-jack2.sh win32 && ./PawPaw/.cleanup.sh win32
-      - name: Build jack-example-tools
-        shell: bash
-        run: |
-          pushd PawPaw && source local.env win32 && popd
-          meson build
-          ninja -C build
-      - name: Install jack-example-tools
-        run: |
-          pushd PawPaw && source local.env win32 && popd
-          ninja -C build install
+      #- name: Build jack-example-tools
+        #shell: bash
+        #run: |
+          #pushd PawPaw && source local.env win32 && popd
+          #meson build
+          #ninja -C build
+      #- name: Install jack-example-tools
+        #run: |
+          #pushd PawPaw && source local.env win32 && popd
+          #ninja -C build install
   build_pawpaw_win64:
     runs-on: ubuntu-20.04
     steps:
@@ -211,7 +211,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update -qq
-          sudo apt-get install -y autopoint build-essential curl cmake jq mingw-w64 \
+          sudo apt-get install -y autopoint build-essential curl cmake jq llvm mingw-w64 \
             binutils-mingw-w64-x86-64 g++-mingw-w64-x86-64 mingw-w64 wine-stable
       - name: Bootstrap win64 cross-compiled
         shell: bash
@@ -225,13 +225,13 @@ jobs:
         shell: bash
         run: |
           ./PawPaw/build-jack2.sh win64 && ./PawPaw/.cleanup.sh win64
-      - name: Build jack-example-tools
-        shell: bash
-        run: |
-          pushd PawPaw && source local.env win64 && popd
-          meson build
-          ninja -C build
-      - name: Install jack-example-tools
-        run: |
-          pushd PawPaw && source local.env win64 && popd
-          ninja -C build install
+      #- name: Build jack-example-tools
+        #shell: bash
+        #run: |
+          #pushd PawPaw && source local.env win64 && popd
+          #meson build
+          #ninja -C build
+      #- name: Install jack-example-tools
+        #run: |
+          #pushd PawPaw && source local.env win64 && popd
+          #ninja -C build install
