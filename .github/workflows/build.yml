@@ -9,9 +9,11 @@ on:
     branches: [main]
 
 env:
+  JACK2_VERSION: v1.9.21
   PAWPAW_CACHE_VERSION: 1
+  PAWPAW_JACK2_NO_CUSTOM_PREFIX: 1
   PAWPAW_SKIP_LTO: 1
-  PAWPAW_VERSION: 023bccdeffafc4212292072a1eba78d9e709510e
+  PAWPAW_VERSION: a850c1144c31db8fb443185724bcc511de0658b9
 
 jobs:
   build_arch_linux_jack1:
@@ -108,11 +110,7 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env macos && popd
-          export CFLAGS+=" -I${PAWPAW_PREFIX}-jack2/usr/local/include"
-          export CXXFLAGS+=" -I${PAWPAW_PREFIX}-jack2/usr/local/include"
-          export LDFLAGS+=" -L${PAWPAW_PREFIX}-jack2/usr/local/lib"
-          export PKG_CONFIG_PATH+=":${PAWPAW_PREFIX}-jack2/usr/local/lib/pkgconfig"
-          meson build --prefix "${PAWPAW_PREFIX}-jack2/usr/local" || cat build/meson-logs/meson-log.txt
+          meson build --prefix "${PAWPAW_PREFIX}" || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
         run: |
@@ -149,11 +147,7 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env macos-universal && popd
-          export CFLAGS+=" -I${PAWPAW_PREFIX}-jack2/usr/local/include"
-          export CXXFLAGS+=" -I${PAWPAW_PREFIX}-jack2/usr/local/include"
-          export LDFLAGS+=" -L${PAWPAW_PREFIX}-jack2/usr/local/lib"
-          export PKG_CONFIG_PATH+=":${PAWPAW_PREFIX}-jack2/usr/local/lib/pkgconfig"
-          meson build --prefix "${PAWPAW_PREFIX}-jack2/usr/local" || cat build/meson-logs/meson-log.txt
+          meson build --prefix "${PAWPAW_PREFIX}" || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
         run: |
@@ -196,11 +190,7 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env win32 && popd
-          export CFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
-          export CXXFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
-          export LDFLAGS+=" -L${PAWPAW_PREFIX}-jack2/lib"
-          export PKG_CONFIG_PATH+=":${PAWPAW_PREFIX}-jack2/lib/pkgconfig"
-          meson build --prefix "${PAWPAW_PREFIX}-jack2" --cross-file PawPaw/setup/meson/win32.ini || cat build/meson-logs/meson-log.txt
+          meson build --prefix "${PAWPAW_PREFIX}" --cross-file PawPaw/setup/meson/win32.ini || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
         run: |
@@ -243,11 +233,7 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env win64 && popd
-          export CFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
-          export CXXFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
-          export LDFLAGS+=" -L${PAWPAW_PREFIX}-jack2/lib"
-          export PKG_CONFIG_PATH+=":${PAWPAW_PREFIX}-jack2/lib/pkgconfig"
-          meson build --prefix "${PAWPAW_PREFIX}-jack2" --cross-file PawPaw/setup/meson/win64.ini || cat build/meson-logs/meson-log.txt
+          meson build --prefix "${PAWPAW_PREFIX}" --cross-file PawPaw/setup/meson/win64.ini || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
         run: |
