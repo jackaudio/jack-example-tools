@@ -117,7 +117,8 @@ if get_option('jack_net').enabled() or (get_option('jack_net').auto() and lib_ja
 endif
 
 build_jack_netsource = false
-if get_option('jack_netsource').enabled() or (get_option('jack_netsource').auto() and dep_samplerate.found())
+# FIXME jacknet tools fail to build on windows
+if get_option('jack_netsource').enabled() or (get_option('jack_netsource').auto() and dep_samplerate.found() and host_machine.system() != 'windows')
   build_jack_netsource = true
 endif
 
