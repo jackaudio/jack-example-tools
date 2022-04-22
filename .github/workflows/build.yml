@@ -54,6 +54,18 @@ jobs:
         run: meson build && ninja -C build
       - name: Install jack-example-tools
         run: ninja -C build install
+  build_alpine_linux:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: apk add g++ meson pkgconf alsa-lib-dev jack-dev opus-dev readline-dev libsamplerate-dev libsndfile-dev
+      - name: Build jack-example-tools
+        run: meson build && ninja -C build
+      - name: Install jack-example-tools
+        run: ninja -C build install
   build_macos_latest:
     runs-on: macos-latest
     steps:
