@@ -262,7 +262,11 @@ main (int argc, char *argv[])
 	/* keep running until the transport stops */
 
 	while (client_state != Exit) {
+	#ifdef WIN32
+		Sleep(1000);
+	#else
 		sleep (1);
+	#endif
 	}
 
 	jack_client_close (client);
