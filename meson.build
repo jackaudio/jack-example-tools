@@ -79,7 +79,7 @@ endif
 
 # we must link to jackserver as shared library, which is hard if `-Wl,-Bstatic` is used in `LDFLAGS`
 # do a little dance to support such builds here
-if cc.get_variable('LDFLAGS').contains('-Bstatic')
+if cc.has_link_argument('-Bstatic')
   lib_jackserver = declare_dependency(link_args: ['-Wl,-Bshared', '-ljackserver' + lib_jackserver_suffix, '-Wl,-Bstatic'])
 else
   lib_jackserver = cc.find_library('jackserver' + lib_jackserver_suffix, required: true)
