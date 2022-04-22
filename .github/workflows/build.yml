@@ -13,7 +13,7 @@ env:
   PAWPAW_CACHE_VERSION: 1
   PAWPAW_JACK2_NO_CUSTOM_PREFIX: 1
   PAWPAW_SKIP_LTO: 1
-  PAWPAW_VERSION: a850c1144c31db8fb443185724bcc511de0658b9
+  PAWPAW_VERSION: 90c5589edd46e486a581458f62ca9fe8c7132eac
 
 jobs:
   build_arch_linux_jack1:
@@ -110,10 +110,6 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env macos && popd
-          # NOTE these custom paths shouldn't be needed, as PawPaw already has them included, consider it a meson bug
-          export CFLAGS+=" -I${PAWPAW_PREFIX}/include"
-          export CXXFLAGS+=" -I${PAWPAW_PREFIX}/include"
-          export LDFLAGS+=" -L${PAWPAW_PREFIX}/lib"
           meson build || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
@@ -151,10 +147,6 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env macos-universal && popd
-          # NOTE these custom paths shouldn't be needed, as PawPaw already has them included, consider it a meson bug
-          export CFLAGS+=" -I${PAWPAW_PREFIX}/include"
-          export CXXFLAGS+=" -I${PAWPAW_PREFIX}/include"
-          export LDFLAGS+=" -L${PAWPAW_PREFIX}/lib"
           meson build || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
@@ -198,10 +190,6 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env win32 && popd
-          # NOTE these custom paths shouldn't be needed, as PawPaw already has them included, consider it a meson bug
-          export CFLAGS+=" -I${PAWPAW_PREFIX}/include"
-          export CXXFLAGS+=" -I${PAWPAW_PREFIX}/include"
-          export LDFLAGS+=" -L${PAWPAW_PREFIX}/lib"
           meson build --cross-file PawPaw/setup/meson/win32.ini || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
@@ -245,10 +233,6 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env win64 && popd
-          # NOTE these custom paths shouldn't be needed, as PawPaw already has them included, consider it a meson bug
-          export CFLAGS+=" -I${PAWPAW_PREFIX}/include"
-          export CXXFLAGS+=" -I${PAWPAW_PREFIX}/include"
-          export LDFLAGS+=" -L${PAWPAW_PREFIX}/lib"
           meson build --cross-file PawPaw/setup/meson/win64.ini || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
