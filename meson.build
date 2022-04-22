@@ -8,12 +8,15 @@ project(
 
 os = build_machine.system()
 cc = meson.get_compiler('c')
-lib_m = cc.find_library('m')
-lib_rt = cc.find_library('rt')
 
 alsa_required = false
 if get_option('alsa_in_out').enabled() or get_option('zalsa').enabled()
   alsa_required = true
+endif
+
+lib_rt_required = false
+if get_option('zalsa').enabled()
+  lib_rt_required = true
 endif
 
 libsamplerate_required = false
@@ -75,10 +78,13 @@ lib_jacknet = cc.find_library('jacknet', required: get_option('jack_net'))
 
 dep_alsa = dependency('alsa', version: '>=1.0.18', required: alsa_required)
 dep_opus = dependency('opus', version: '>=0.9.0', required: get_option('opus_support'))
+header_opus_custom = cc.check_header('opus/opus_custom.h')
 dep_readline = dependency('readline', required: get_option('readline_support'))
 dep_samplerate = dependency('samplerate', required: libsamplerate_required)
 dep_sndfile = dependency('sndfile', required: get_option('jack_rec'))
 dep_threads = dependency('threads')
+lib_m = cc.find_library('m')
+lib_rt = cc.find_library('rt', required: lib_rt_required)
 lib_zita_alsa_pcmi = cc.find_library('zita-alsa-pcmi', required: get_option('zalsa'))
 lib_zita_resampler = cc.find_library('zita-resampler', required: get_option('zalsa'))
 has_ppoll = cc.has_function('ppoll', prefix: '#define _GNU_SOURCE\n#include <sys/poll.h>')
@@ -101,7 +107,7 @@ if get_option('jack_netsource').enabled() or (get_option('jack_netsource').auto(
 endif
 
 opus_support = false
-if get_option('opus_support').enabled() or (get_option('opus_support').auto() and dep_opus.found())
+if get_option('opus_support').enabled() or (get_option('opus_support').auto() and dep_opus.found() and header_opus_custom)
   opus_support = true
 endif
 
@@ -117,7 +123,7 @@ endif
 
 build_zalsa = false
 if get_option('zalsa').enabled() or (
-  get_option('zalsa').auto() and dep_alsa.found() and lib_zita_alsa_pcmi.found() and lib_zita_resampler.found()
+  get_option('zalsa').auto() and dep_alsa.found() and lib_rt.found() and lib_zita_alsa_pcmi.found() and lib_zita_resampler.found()
 )
   build_zalsa = true
 endif
