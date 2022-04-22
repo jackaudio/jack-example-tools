@@ -108,11 +108,11 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env macos && popd
-          export CFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
-          export CXXFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
-          export LDFLAGS+=" -L${PAWPAW_PREFIX}-jack2/lib"
-          export PKG_CONFIG_PATH+=":${PAWPAW_PREFIX}-jack2/lib/pkgconfig"
-          meson build --prefix "${PAWPAW_PREFIX}-jack2" || cat build/meson-logs/meson-log.txt
+          export CFLAGS+=" -I${PAWPAW_PREFIX}-jack2/usr/local/include"
+          export CXXFLAGS+=" -I${PAWPAW_PREFIX}-jack2/usr/local/include"
+          export LDFLAGS+=" -L${PAWPAW_PREFIX}-jack2/usr/local/lib"
+          export PKG_CONFIG_PATH+=":${PAWPAW_PREFIX}-jack2/usr/local/lib/pkgconfig"
+          meson build --prefix "${PAWPAW_PREFIX}-jack2/usr/local" || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
         run: |
@@ -149,11 +149,11 @@ jobs:
         shell: bash
         run: |
           pushd PawPaw && source local.env macos-universal && popd
-          export CFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
-          export CXXFLAGS+=" -I${PAWPAW_PREFIX}-jack2/include"
-          export LDFLAGS+=" -L${PAWPAW_PREFIX}-jack2/lib"
-          export PKG_CONFIG_PATH+=":${PAWPAW_PREFIX}-jack2/lib/pkgconfig"
-          meson build --prefix "${PAWPAW_PREFIX}-jack2" || cat build/meson-logs/meson-log.txt
+          export CFLAGS+=" -I${PAWPAW_PREFIX}-jack2/usr/local/include"
+          export CXXFLAGS+=" -I${PAWPAW_PREFIX}-jack2/usr/local/include"
+          export LDFLAGS+=" -L${PAWPAW_PREFIX}-jack2/usr/local/lib"
+          export PKG_CONFIG_PATH+=":${PAWPAW_PREFIX}-jack2/usr/local/lib/pkgconfig"
+          meson build --prefix "${PAWPAW_PREFIX}-jack2/usr/local" || cat build/meson-logs/meson-log.txt
           ninja -C build
       - name: Install jack-example-tools
         run: |
@@ -177,7 +177,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update -qq
-          sudo apt-get install -y autopoint build-essential curl cmake jq llvm mingw-w64 \
+          sudo apt-get install -y autopoint build-essential curl cmake jq llvm meson mingw-w64 \
             binutils-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64 wine-stable:i386
       - name: Bootstrap win32 cross-compiled
         shell: bash
@@ -223,7 +223,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update -qq
-          sudo apt-get install -y autopoint build-essential curl cmake jq llvm mingw-w64 \
+          sudo apt-get install -y autopoint build-essential curl cmake jq llvm meson mingw-w64 \
             binutils-mingw-w64-x86-64 g++-mingw-w64-x86-64 mingw-w64 wine-stable
       - name: Bootstrap win64 cross-compiled
         shell: bash
