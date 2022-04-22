@@ -248,10 +248,16 @@ main (int argc, char *argv[])
 	jack_free (ports);
 
     /* install a signal handler to properly quits jack client */
-    signal(SIGQUIT, signal_handler);
+#ifdef WIN32
+	signal(SIGINT, signal_handler);
+	signal(SIGABRT, signal_handler);
+	signal(SIGTERM, signal_handler);
+#else
+	signal(SIGQUIT, signal_handler);
 	signal(SIGTERM, signal_handler);
 	signal(SIGHUP, signal_handler);
 	signal(SIGINT, signal_handler);
+#endif
 
 	/* keep running until the transport stops */
 
