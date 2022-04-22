@@ -190,7 +190,13 @@ main (int argc, char* argv[])
 		exit (EXIT_FAILURE);
 	}
 
-#ifndef WIN32
+#ifdef WIN32
+	signal(SIGINT, wearedone);
+	signal(SIGABRT, wearedone);
+	signal(SIGTERM, wearedone);
+#else
+	signal(SIGQUIT, wearedone);
+	signal(SIGTERM, wearedone);
 	signal(SIGHUP, wearedone);
 	signal(SIGINT, wearedone);
 #endif

@@ -6,10 +6,13 @@
 
 #include <stdio.h>
 #include <errno.h>
-#include <unistd.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#ifndef WIN32
+#include <unistd.h>
+#endif
 
 #include <jack/jack.h>
 

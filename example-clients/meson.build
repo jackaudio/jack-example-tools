@@ -106,18 +106,20 @@ if build_jack_net
   )
 endif
 
-if has_jackctl_server_create2
-  c_args_jack_server_control = c_args_common + ['-D__JACK2__']
-else
-  c_args_jack_server_control = c_args_common + ['-D__JACK1__']
+if host_machine.system() != 'windows'
+  if has_jackctl_server_create2
+    c_args_jack_server_control = c_args_common + ['-D__JACK2__']
+  else
+    c_args_jack_server_control = c_args_common + ['-D__JACK1__']
+  endif
+  exe_jack_server_control = executable(
+    'jack_server_control',
+    c_args: c_args_jack_server_control,
+    sources: ['server_control.c'],
+    dependencies: [dep_jack, lib_jackserver],
+    install: true
+  )
 endif
-exe_jack_server_control = executable(
-  'jack_server_control',
-  c_args: c_args_jack_server_control,
-  sources: ['server_control.c'],
-  dependencies: [dep_jack, lib_jackserver],
-  install: true
-)
 
 exe_jack_showtime = executable(
   'jack_showtime',
