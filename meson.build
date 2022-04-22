@@ -71,15 +71,18 @@ has_jack2_internal_client = cc.compiles(
 )
 message('Provides jack2-style jack_internal_client_handle(): ' + has_jack2_internal_client.to_string())
 
-if host_machine.system() == 'windows'
-  if host_machine.cpu_family() == 'x86_64'
-    lib_jackserver_suffix = '64'
-  else
-    lib_jackserver_suffix = ''
-  endif
+if host_machine.system() == 'windows' and host_machine.cpu_family() == 'x86_64'
+  lib_jackserver_suffix = '64'
+else
+  lib_jackserver_suffix = ''
+endif
+
+# we must link to jackserver as shared library, which is hard if `-Wl,-Bstatic` is used in `LDFLAGS`
+# do a little dance to support such builds here
+if cc.get_variable('LDFLAGS').contains('-Bstatic')
   lib_jackserver = declare_dependency(link_args: ['-Wl,-Bshared', '-ljackserver' + lib_jackserver_suffix, '-Wl,-Bstatic'])
 else
-  lib_jackserver = cc.find_library('jackserver', required: true)
+  lib_jackserver = cc.find_library('jackserver' + lib_jackserver_suffix, required: true)
 endif
 
 has_jackctl_server_create2 = cc.has_function('jackctl_server_create2', dependencies: lib_jackserver, prefix: '#include <jack/control.h>')
@@ -107,7 +110,8 @@ if get_option('alsa_in_out').enabled() or (
 endif
 
 build_jack_net = false
-if get_option('jack_net').enabled() or (get_option('jack_net').auto() and lib_jacknet.found())
+# FIXME jacknet tools fail to build on windows
+if get_option('jack_net').enabled() or (get_option('jack_net').auto() and lib_jacknet.found() and host_machine.system() != 'windows')
   build_jack_net = true
 endif
 
