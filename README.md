@@ -79,6 +79,14 @@ Afterwards a tag can be verified from a clone of this repository:
 git verify-tag <tag>
 ```
 
+## Packages
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/jack-example-tools.svg)](https://repology.org/project/jack-example-tools/versions)
+
+**NOTE**: If you are a distribution packager, you are very welcome to package
+this project and replace the versions of the tooling previously shipped with
+jack1 and jack2 with it!
+
 ## License
 
 All files (unless noted otherwise) are licensed under the terms of the
