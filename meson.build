@@ -71,15 +71,20 @@ has_jack2_internal_client = cc.compiles(
 )
 message('Provides jack2-style jack_internal_client_handle(): ' + has_jack2_internal_client.to_string())
 
-if host_machine.system() == 'windows' and host_machine.cpu_family() == 'x86_64'
-  lib_jackserver_name = 'jackserver64'
+if host_machine.system() == 'windows'
+  if host_machine.cpu_family() == 'x86_64'
+    lib_jackserver_suffix = '64'
+  else
+    lib_jackserver_suffix = ''
+  endif
+  lib_jackserver = declare_dependency(link_args: ['-Wl,-Bshared', '-ljackserver' + lib_jackserver_suffix, '-Wl,-Bstatic'])
 else
-  lib_jackserver_name = 'jackserver'
+  lib_jackserver = cc.find_library('jackserver', required: true)
 endif
-lib_jackserver = cc.find_library(lib_jackserver_name, required: true, static: false)
+
 has_jackctl_server_create2 = cc.has_function('jackctl_server_create2', dependencies: lib_jackserver, prefix: '#include <jack/control.h>')
 
-lib_jacknet = cc.find_library('jacknet', required: get_option('jack_net'), static: false)
+lib_jacknet = cc.find_library('jacknet', required: get_option('jack_net'))
 
 dep_alsa = dependency('alsa', version: '>=1.0.18', required: alsa_required)
 dep_opus = dependency('opus', version: '>=0.9.0', required: get_option('opus_support'))
