@@ -80,13 +80,15 @@ endif
 if not has_jack1_internal_client and has_jack2_internal_client
   c_args_jack_unload = c_args_common + ['-D__JACK2__']
 endif
-exe_jack_unload = executable(
-  'jack_unload',
-  c_args: c_args_jack_unload,
-  sources: ['ipunload.c'],
-  dependencies: [dep_jack],
-  install: true
-)
+if has_jack1_internal_client or has_jack2_internal_client
+  exe_jack_unload = executable(
+    'jack_unload',
+    c_args: c_args_jack_unload,
+    sources: ['ipunload.c'],
+    dependencies: [dep_jack],
+    install: true
+  )
+endif
 
 exe_jack_unload = executable(
   'jack_load_test',
@@ -154,14 +156,17 @@ exe_jack_samplerate = executable(
   install: true
 )
 
-# dont install, jack session is deprecated
-exe_jack_session_notify = executable(
-  'jack_session_notify',
-  sources: ['session_notify.c'],
-  dependencies: [dep_jack],
-  c_args: ['-Wno-deprecated-declarations'],
-  install: false
-)
+# FIXME deal with alloca on windows
+if host_machine.system() != 'windows'
+  # dont install, jack session is deprecated
+  exe_jack_session_notify = executable(
+    'jack_session_notify',
+    sources: ['session_notify.c'],
+    dependencies: [dep_jack],
+    c_args: ['-Wno-deprecated-declarations'],
+    install: false
+  )
+endif
 
 jack_transport_c_args = c_args_common
 jack_transport_deps = [dep_jack]
