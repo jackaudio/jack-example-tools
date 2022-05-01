@@ -3,7 +3,7 @@ project(
   ['c', 'cpp'],
   meson_version: '>=0.58.0',
   license: ['GPL2+'],
-  version: '1',
+  version: '3',
 )
 
 os = build_machine.system()
