@@ -100,10 +100,16 @@ main (int argc, char *argv[])
 
 	client = jack_client_open( "load_test", JackNullOption, NULL );
 
+#ifdef WIN32
+	signal(SIGINT, signal_handler);
+	signal(SIGABRT, signal_handler);
+	signal(SIGTERM, signal_handler);
+#else
 	signal(SIGQUIT, signal_handler);
 	signal(SIGTERM, signal_handler);
 	signal(SIGHUP, signal_handler);
 	signal(SIGINT, signal_handler);
+#endif
 
 	jack_on_shutdown(client, jack_shutdown, 0);
 
@@ -111,7 +117,11 @@ main (int argc, char *argv[])
 
 	jack_activate (client);
 
-	sleep( -1 );
+	#ifdef WIN32
+	Sleep (INFINITE);
+	#else
+	sleep (-1);
+	#endif
 
 	exit (0);
 }

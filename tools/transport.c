@@ -415,6 +415,7 @@ static char *stripwhite(char *string)
 	return s;
 }
 
+#if HAVE_READLINE
 static char *dupstr(char *s)
 {
 	char *r = malloc(strlen(s) + 1);
@@ -447,6 +448,7 @@ static char *command_generator (const char *text, int state)
 
 	return (char *) NULL;		/* No names matched. */
 }
+#endif
 
 static void command_loop()
 {

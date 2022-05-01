@@ -9,9 +9,12 @@
 
 #include <stdio.h>
 #include <errno.h>
-#include <unistd.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef WIN32
+#include <unistd.h>
+#endif
 
 #include <jack/jack.h>
 
@@ -189,7 +192,11 @@ main (int argc, char *argv[])
 	/* keep running until the transport stops */
 
 	while (client_state != Exit) {
+#ifdef WIN32
+		Sleep (1000);
+#else
 		sleep (1);
+#endif
 	}
 
 	jack_client_close (client);
