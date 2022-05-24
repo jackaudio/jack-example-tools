@@ -19,7 +19,6 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <alloca.h>
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
@@ -156,7 +155,7 @@ int main(int argc, char *argv[])
 
 	for (k = 0; retval[k].uuid; k++) {
 
-		char* port_regexp = alloca( jack_client_name_size()+3 );
+		char port_regexp[jack_client_name_size()+3];
 		char* client_name = jack_get_client_name_by_uuid( client, retval[k].uuid );
 		snprintf( port_regexp, jack_client_name_size()+3, "%s:.*", client_name );
 		jack_free(client_name);

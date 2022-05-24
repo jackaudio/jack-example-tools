@@ -4,7 +4,6 @@
  * as they would be used by many applications.
  */
 
-#include <alloca.h>
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
@@ -81,8 +80,6 @@ snd_pcm_uframes_t real_period_size;
 // buffers
 
 char *tmpbuf;
-char *outbuf;
-float *resampbuf;
 
 // format selection, and corresponding functions from memops in a nice set of structs.
 
@@ -303,7 +300,7 @@ static snd_pcm_t *open_audiofd( const char *device_name, int capture, int rate, 
 	//snd_pcm_start( handle );
 	//snd_pcm_wait( handle, 200 );
 	int num_null_samples = nperiods * period * channels;
-	char *tmp = alloca( num_null_samples * formats[format].sample_size ); 
+	char tmp[num_null_samples * formats[format].sample_size]; 
 	memset( tmp, 0, num_null_samples * formats[format].sample_size );
 	snd_pcm_writei( handle, tmp, num_null_samples );
 
@@ -457,9 +454,9 @@ int process (jack_nframes_t nframes, void *arg) {
 	 * now this should do it...
 	 */
 
-	outbuf = alloca( rlen * formats[format].sample_size * num_channels );
+	char outbuf[rlen * formats[format].sample_size * num_channels];
 
-	resampbuf = alloca( rlen * sizeof( float ) );
+	float resampbuf[rlen * sizeof(float)];
 	/*
 	 * render jack ports to the outbuf...
 	 */
@@ -801,11 +798,9 @@ int main (int argc, char *argv[]) {
 	// alloc input ports, which are blasted out to alsa...
 	alloc_ports( 0, num_channels );
 
-	outbuf = malloc( num_periods * period_size * formats[format].sample_size * num_channels );
-	resampbuf = malloc( num_periods * period_size * sizeof( float ) );
 	tmpbuf = malloc( 512 * formats[format].sample_size * num_channels );
 
-	if ((outbuf == NULL) || (resampbuf == NULL) || (tmpbuf == NULL))
+	if (tmpbuf == NULL)
 	{
 		fprintf( stderr, "no memory for buffers.\n" );
 		exit(20);
