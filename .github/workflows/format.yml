@@ -1,0 +1,29 @@
+---
+
+name: Check for correct formatting
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check_formatting:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pacman --noconfirm -Syu diffutils findutils clang
+      - name: Run clang-format on all C and C++ sources
+        run: |
+          cp -av ../jack-example-tools ../jack-example-tools.orig
+          find . -type f \( -iname "*.c" -or -iname "*.cc" -or -iname "*.cpp" -or -iname "*.h" \) -exec clang-format -i {} \;
+      - name: Check whether there are differences
+        run: |
+          if test -n "$(diff -ruN ../jack-example-tools.orig ../jack-example-tools)"; then
+            diff -ruN ../jack-example-tools.orig ../jack-example-tools
+            exit 1
+          fi
