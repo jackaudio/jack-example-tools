@@ -43,7 +43,8 @@ static void signal_handler(int sig)
  * special realtime thread once for each audio cycle.
  *
  * This client follows a simple rule: when the JACK transport is
- * running, copy the input port to the output.  When it stops, exit.
+ * running, write nframes sine wave samples to the two outputs ports.
+ * When it stops, exit.
  */
 
 int
@@ -105,6 +106,7 @@ main (int argc, char *argv[])
 			client_name++;
 		}
 	}
+
 
 	for( i=0; i<TABLE_SIZE; i++ )
 	{
