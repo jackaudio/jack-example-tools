@@ -8,9 +8,9 @@ client-name
 The client-name must be a yet unused client name.
 .SH DESCRIPTION
 .B jack_simple_client
-is an example client for the JACK Audio Connection Kit. It creates two
-ports (client-name:input and client-name:output) that pass the data
-unmodified.
+is an example client for the JACK Audio Connection Kit. It creates two output
+ports (client-name:output1 and client-name:output2) and plays a sine wave
+to these ports.
 .SH EXAMPLE
 jack_simple_client in_process_test
 .SH AUTHOR
