@@ -22,13 +22,12 @@ jobs:
       image: archlinux:latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install dependencies
-        run: pacman --noconfirm -Syu alsa-lib base-devel celt meson opus readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
-      - name: Install jack1
+      - name: Add pro-audio-legacy repository
         run: |
           printf "[pro-audio-legacy]\nServer = https://pkgbuild.com/~dvzrv/repos/pro-audio-legacy/\$arch\n" >> /etc/pacman.conf
           pacman -Syy
-          pacman --noconfirm -S jack
+      - name: Install dependencies
+        run: pacman --noconfirm -Syu alsa-lib base-devel jack meson opus readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
       - name: Build jack-example-tools
         run: meson build && ninja -C build
       - name: Install jack-example-tools
@@ -40,9 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
-        run: pacman --noconfirm -Syu alsa-lib base-devel celt meson opus readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
-      - name: Install jack2
-        run: pacman --noconfirm -S jack2
+        run: pacman --noconfirm -Syu alsa-lib base-devel jack2 meson opus readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
       - name: Build jack-example-tools
         run: meson build && ninja -C build
       - name: Install jack-example-tools
@@ -54,9 +51,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
-        run: pacman --noconfirm -Syu alsa-lib base-devel celt meson opus readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
-      - name: Install pipewire-jack
-        run: pacman --noconfirm -S pipewire-jack
+        run: pacman --noconfirm -Syu alsa-lib base-devel meson opus pipewire-jack readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
       - name: Build jack-example-tools
         run: meson build && ninja -C build
       - name: Install jack-example-tools
