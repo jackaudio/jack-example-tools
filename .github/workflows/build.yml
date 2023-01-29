@@ -21,7 +21,7 @@ jobs:
     container:
       image: archlinux:latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Add pro-audio-legacy repository
         run: |
           printf "[pro-audio-legacy]\nServer = https://pkgbuild.com/~dvzrv/repos/pro-audio-legacy/\$arch\n" >> /etc/pacman.conf
@@ -37,7 +37,7 @@ jobs:
     container:
       image: archlinux:latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install dependencies
         run: pacman --noconfirm -Syu alsa-lib base-devel jack2 meson opus readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
       - name: Build jack-example-tools
@@ -49,7 +49,7 @@ jobs:
     container:
       image: archlinux:latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install dependencies
         run: pacman --noconfirm -Syu alsa-lib base-devel meson opus pipewire-jack readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
       - name: Build jack-example-tools
@@ -61,7 +61,7 @@ jobs:
     container:
       image: alpine:latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install dependencies
         run: apk add g++ meson pkgconf alsa-lib-dev jack-dev opus-dev readline-dev libsamplerate-dev libsndfile-dev
       - name: Build jack-example-tools
@@ -71,7 +71,7 @@ jobs:
   build_macos_latest:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install dependencies
         run: brew install jack meson opus pkg-config readline
       - name: Build jack-example-tools
@@ -81,9 +81,9 @@ jobs:
   build_pawpaw_macos_intel:
     runs-on: macos-10.15
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/PawPawBuilds
           key: macos-intel-v${{ env.PAWPAW_CACHE_VERSION }}
@@ -114,9 +114,9 @@ jobs:
   build_pawpaw_macos_universal:
     runs-on: macos-10.15
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/PawPawBuilds
           key: macos-universal-v${{ env.PAWPAW_CACHE_VERSION }}
@@ -151,9 +151,9 @@ jobs:
   build_pawpaw_win32:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/PawPawBuilds
           key: win32-v${{ env.PAWPAW_CACHE_VERSION }}
@@ -161,7 +161,8 @@ jobs:
         run: |
           sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo apt-get update -qq
-          sudo apt-get install -yqq --allow-downgrades libpcre2-8-0/focal libpcre2-16-0/focal libpcre2-32-0/focal libpcre2-posix2/focal
+          sudo apt-get install -yqq --allow-downgrades libgd3/focal libpcre2-8-0/focal libpcre2-16-0/focal libpcre2-32-0/focal libpcre2-posix2/focal
+          sudo apt-get purge -yqq libclang* libgbm* libllvm* libmono* moby* mono* php* libgdiplus libpcre2-posix3 libzip4
       - name: Set up dependencies
         run: |
           sudo dpkg --add-architecture i386
@@ -194,9 +195,9 @@ jobs:
   build_pawpaw_win64:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/PawPawBuilds
           key: win64-v${{ env.PAWPAW_CACHE_VERSION }}
@@ -204,7 +205,8 @@ jobs:
         run: |
           sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo apt-get update -qq
-          sudo apt-get install -yqq --allow-downgrades libpcre2-8-0/focal libpcre2-16-0/focal libpcre2-32-0/focal libpcre2-posix2/focal
+          sudo apt-get install -yqq --allow-downgrades libgd3/focal libpcre2-8-0/focal libpcre2-16-0/focal libpcre2-32-0/focal libpcre2-posix2/focal
+          sudo apt-get purge -yqq libclang* libgbm* libllvm* libmono* moby* mono* php* libgdiplus libpcre2-posix3 libzip4
       - name: Set up dependencies
         run: |
           sudo dpkg --add-architecture i386
