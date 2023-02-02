@@ -95,6 +95,7 @@ if build_jack_net
     'jack_net_master',
     sources: ['netmaster.c'],
     dependencies: [lib_jacknet],
+    include_directories: include_directories(dep_jack.get_variable('includedir')),
     install: true
   )
 
@@ -102,24 +103,24 @@ if build_jack_net
     'jack_net_slave',
     sources: ['netslave.c'],
     dependencies: [lib_jacknet],
+    include_directories: include_directories(dep_jack.get_variable('includedir')),
     install: true
   )
 endif
 
-if host_machine.system() != 'windows'
-  if has_jackctl_server_create2
-    c_args_jack_server_control = c_args_common + ['-D__JACK2__']
-  else
-    c_args_jack_server_control = c_args_common + ['-D__JACK1__']
-  endif
-  exe_jack_server_control = executable(
-    'jack_server_control',
-    c_args: c_args_jack_server_control,
-    sources: ['server_control.c'],
-    dependencies: [dep_jack, lib_jackserver],
-    install: true
-  )
+if has_jackctl_server_create2
+  c_args_jack_server_control = c_args_common + ['-D__JACK2__']
+else
+  c_args_jack_server_control = c_args_common + ['-D__JACK1__']
 endif
+exe_jack_server_control = executable(
+  'jack_server_control',
+  c_args: c_args_jack_server_control,
+  sources: ['server_control.c'],
+  dependencies: [lib_jackserver],
+  include_directories: include_directories(dep_jack.get_variable('includedir')),
+  install: true
+)
 
 exe_jack_showtime = executable(
   'jack_showtime',

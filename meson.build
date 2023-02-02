@@ -26,6 +26,22 @@ endif
 
 dep_jack = dependency('jack')
 
+if host_machine.system() == 'windows' and host_machine.cpu_family() == 'x86_64'
+  lib_jackserver_suffix = '64'
+else
+  lib_jackserver_suffix = ''
+endif
+
+lib_jackserver = cc.find_library('jackserver' + lib_jackserver_suffix,
+  dirs: dep_jack.get_variable('libdir'),
+  required: true
+)
+
+lib_jacknet = cc.find_library('jacknet',
+  dirs: dep_jack.get_variable('libdir'),
+  required: get_option('jack_net')
+)
+
 jack_implementation = ''
 jack_implementation = dep_jack.get_variable('jack_implementation')
 if jack_implementation == ''
@@ -48,7 +64,8 @@ has_jack1_internal_client = cc.compiles(
     client = jack_client_open(client_name, JackNoStartServer, &status);
     jack_internal_client_handle(client, client_name, &status, &intclient);
   }
-  '''
+  ''',
+  dependencies: [dep_jack],
 )
 message('Provides jack1-style jack_internal_client_handle(): ' + has_jack1_internal_client.to_string())
 
@@ -67,28 +84,16 @@ has_jack2_internal_client = cc.compiles(
     client = jack_client_open(client_name, JackNoStartServer, &status);
     intclient = jack_internal_client_handle(client, client_name, &status);
   }
-  '''
+  ''',
+  dependencies: [dep_jack],
 )
 message('Provides jack2-style jack_internal_client_handle(): ' + has_jack2_internal_client.to_string())
 
-if host_machine.system() == 'windows' and host_machine.cpu_family() == 'x86_64'
-  lib_jackserver_suffix = '64'
-else
-  lib_jackserver_suffix = ''
-endif
-
-# we must link to jackserver as shared library, which is hard if `-Wl,-Bstatic` is used in `LDFLAGS`
-# do a little dance to support such builds here
-# FIXME find a way to do something like `if link_args.contains('-Bstatic')`
-if host_machine.system() == 'windows'
-  lib_jackserver = declare_dependency(link_args: ['-Wl,-Bshared', '-ljackserver' + lib_jackserver_suffix, '-Wl,-Bstatic'])
-else
-  lib_jackserver = cc.find_library('jackserver' + lib_jackserver_suffix, required: true)
-endif
-
-has_jackctl_server_create2 = cc.has_function('jackctl_server_create2', dependencies: lib_jackserver, prefix: '#include <jack/control.h>')
-
-lib_jacknet = cc.find_library('jacknet', required: get_option('jack_net'))
+has_jackctl_server_create2 = cc.has_function('jackctl_server_create2',
+  dependencies: [lib_jackserver],
+  include_directories: include_directories(dep_jack.get_variable('includedir')),
+  prefix: '#include <jack/control.h>'
+)
 
 dep_alsa = dependency('alsa', version: '>=1.0.18', required: alsa_required)
 dep_opus = dependency('opus', version: '>=0.9.0', required: get_option('opus_support'))
