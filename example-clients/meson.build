@@ -132,8 +132,8 @@ exe_jack_showtime = executable(
 exe_jack_simdtests = executable(
   'jack_simdtests',
   sources: ['simdtests.cpp'],
-  include_directories: ['../common'],
-  dependencies: [dep_jack, lib_m],
+  include_directories: ['../common', dep_jack.get_variable('includedir')],
+  dependencies: [lib_m],
   install: true
 )
 
