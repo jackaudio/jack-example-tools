@@ -1,5 +1,18 @@
 # Changelog
 
+## [4]
+
+### Fixes
+- Fix a typo in `alsa_in` manpage
+- Fix source-code comments and manpage for `jack_simple_client`
+- Remove includes of non-standard `alloca.h` header
+
+## [3]
+
+### Fixes
+- Ensure internal clients export their function entry points
+- Fix macOS and Windows builds
+
 ## [2]
 
 ### Fixes
