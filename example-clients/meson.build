@@ -132,7 +132,7 @@ exe_jack_simdtests = executable(
   'jack_simdtests',
   sources: ['simdtests.cpp'],
   include_directories: ['../common'],
-  dependencies: [lib_m],
+  dependencies: [dep_jack, lib_m],
   install: true
 )
 
