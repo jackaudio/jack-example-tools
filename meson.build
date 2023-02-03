@@ -47,19 +47,21 @@ else
   lib_jackserver_suffix = ''
 endif
 
+lib_jackserver_dep = cc.find_library('jackserver' + lib_jackserver_suffix,
+  dirs: [dep_jack.get_variable('libdir'), get_option('prefix') + '/lib'],
+  required: true
+)
 lib_jackserver = declare_dependency(
-  dependencies: cc.find_library('jackserver' + lib_jackserver_suffix,
-    dirs: [dep_jack.get_variable('libdir'), get_option('prefix') + '/lib'],
-    required: true
-  ),
+  dependencies: lib_jackserver_dep,
   include_directories: include_directories_common,
 )
 
+lib_jacknet_dep = cc.find_library('jacknet',
+  dirs: [dep_jack.get_variable('libdir'), get_option('prefix') + '/lib'],
+  required: get_option('jack_net')
+)
 lib_jacknet = declare_dependency(
-  dependencies: cc.find_library('jacknet',
-    dirs: [dep_jack.get_variable('libdir'), get_option('prefix') + '/lib'],
-    required: get_option('jack_net')
-  ),
+  dependencies: lib_jacknet_dep,
   include_directories: include_directories_common,
 )
 
@@ -140,7 +142,7 @@ endif
 
 build_jack_net = false
 # FIXME jacknet tools fail to build on windows
-if get_option('jack_net').enabled() or (get_option('jack_net').auto() and lib_jacknet.found() and host_machine.system() != 'windows')
+if get_option('jack_net').enabled() or (get_option('jack_net').auto() and lib_jacknet_dep.found() and host_machine.system() != 'windows')
   build_jack_net = true
 endif
 
