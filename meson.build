@@ -60,8 +60,12 @@ lib_jacknet_dep = cc.find_library('jacknet',
   dirs: [dep_jack.get_variable('libdir'), get_option('prefix') + '/lib'],
   required: get_option('jack_net')
 )
+lib_jacknet_deps = [lib_jacknet_dep]
+if host_machine.system() == 'windows'
+  lib_jacknet_deps += cc.find_library('ws2_32')
+endif
 lib_jacknet = declare_dependency(
-  dependencies: lib_jacknet_dep,
+  dependencies: lib_jacknet_deps,
   include_directories: include_directories_common,
 )
 
@@ -141,14 +145,12 @@ if get_option('alsa_in_out').enabled() or (
 endif
 
 build_jack_net = false
-# FIXME jacknet tools fail to build on windows
-if get_option('jack_net').enabled() or (get_option('jack_net').auto() and lib_jacknet_dep.found() and host_machine.system() != 'windows')
+if get_option('jack_net').enabled() or (get_option('jack_net').auto() and lib_jacknet_dep.found())
   build_jack_net = true
 endif
 
 build_jack_netsource = false
-# FIXME jacknet tools fail to build on windows
-if get_option('jack_netsource').enabled() or (get_option('jack_netsource').auto() and dep_samplerate.found() and host_machine.system() != 'windows')
+if get_option('jack_netsource').enabled() or (get_option('jack_netsource').auto() and dep_samplerate.found())
   build_jack_netsource = true
 endif
 

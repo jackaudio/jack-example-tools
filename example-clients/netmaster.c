@@ -147,11 +147,13 @@ main (int argc, char *argv[])
     WARNING !! : this code is given for demonstration purpose. For proper timing bevahiour
     it has to be called in a real-time context (which is *not* the case here...)
     */
-    
-    //usleep(5*1000000);
+
     printf("Wait...\n");
-    //sleep(10);
-    usleep(1000000);
+#ifdef WIN32
+    Sleep(1000);
+#else
+    sleep(1);
+#endif
     printf("Wait...OK\n");
   
   	while (1) {
@@ -180,16 +182,24 @@ main (int argc, char *argv[])
             printf("jack_net_master_send failure, exiting\n");
             break;
         }
-        
+
+#ifdef WIN32
+        Sleep(10);
+#else
         usleep(10000);
-         
+#endif
+
         if (jack_net_master_recv_slice(net, result.audio_input, audio_input_buffer, 0, NULL, BUFFER_SIZE/2) < 0) {
             printf("jack_net_master_recv failure, exiting\n");
             break;
         }
-        
+
+#ifdef WIN32
+        Sleep(wait_usec / 1000);
+#else
         usleep(wait_usec);
-	};
+#endif
+    };
 
     // Wait for application end
     jack_net_master_close(net);

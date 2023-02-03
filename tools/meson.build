@@ -126,10 +126,13 @@ if build_jack_netsource
   deps_netsource = [dep_jack, dep_samplerate, lib_m]
   if opus_support
     c_args_netsource += ['-DHAVE_OPUS']
-    deps_netsource += [dep_opus]
+    deps_netsource += dep_opus
   endif
   if has_ppoll
     c_args_netsource += ['-DHAVE_PPOLL']
+  endif
+  if host_machine.system() == 'windows'
+    deps_netsource += cc.find_library('ws2_32')
   endif
 
   exe_jack_netsource = executable(
@@ -156,17 +159,14 @@ exe_jack_samplerate = executable(
   install: true
 )
 
-# FIXME deal with alloca on windows
-if host_machine.system() != 'windows'
-  # dont install, jack session is deprecated
-  exe_jack_session_notify = executable(
-    'jack_session_notify',
-    sources: ['session_notify.c'],
-    dependencies: [dep_jack],
-    c_args: ['-Wno-deprecated-declarations'],
-    install: false
-  )
-endif
+# dont install, jack session is deprecated
+exe_jack_session_notify = executable(
+  'jack_session_notify',
+  sources: ['session_notify.c'],
+  dependencies: [dep_jack],
+  c_args: ['-Wno-deprecated-declarations'],
+  install: false
+)
 
 jack_transport_c_args = c_args_common
 jack_transport_deps = [dep_jack]
