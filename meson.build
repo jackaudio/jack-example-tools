@@ -24,7 +24,22 @@ if get_option('alsa_in_out').enabled() or get_option('jack_netsource').enabled()
   libsamplerate_required = true
 endif
 
-dep_jack = dependency('jack')
+dep_jack_ = dependency('jack')
+dep_jack = declare_dependency(
+  dependencies: dep_jack_,
+  include_directories: include_directories(get_option('prefix') + '/include'),
+  link_args: '-L' + get_option('prefix') + '/lib',
+  variables: {
+    'libdir': dep_jack_.get_variable('libdir'),
+    'includedir': dep_jack_.get_variable('includedir'),
+    'jack_implementation': dep_jack_.get_variable('jack_implementation'),
+  }
+)
+
+include_directories_common = include_directories(
+  dep_jack_.get_variable('includedir'),
+  get_option('prefix') + '/include',
+)
 
 if host_machine.system() == 'windows' and host_machine.cpu_family() == 'x86_64'
   lib_jackserver_suffix = '64'
@@ -32,14 +47,20 @@ else
   lib_jackserver_suffix = ''
 endif
 
-lib_jackserver = cc.find_library('jackserver' + lib_jackserver_suffix,
-  dirs: dep_jack.get_variable('libdir'),
-  required: true
+lib_jackserver = declare_dependency(
+  dependencies: cc.find_library('jackserver' + lib_jackserver_suffix,
+    dirs: [dep_jack.get_variable('libdir'), get_option('prefix') + '/lib'],
+    required: true
+  ),
+  include_directories: include_directories_common,
 )
 
-lib_jacknet = cc.find_library('jacknet',
-  dirs: dep_jack.get_variable('libdir'),
-  required: get_option('jack_net')
+lib_jacknet = declare_dependency(
+  dependencies: cc.find_library('jacknet',
+    dirs: [dep_jack.get_variable('libdir'), get_option('prefix') + '/lib'],
+    required: get_option('jack_net')
+  ),
+  include_directories: include_directories_common,
 )
 
 jack_implementation = ''
@@ -91,7 +112,7 @@ message('Provides jack2-style jack_internal_client_handle(): ' + has_jack2_inter
 
 has_jackctl_server_create2 = cc.has_function('jackctl_server_create2',
   dependencies: [lib_jackserver],
-  include_directories: include_directories(dep_jack.get_variable('includedir')),
+  include_directories: include_directories_common,
   prefix: '#include <jack/control.h>'
 )
 

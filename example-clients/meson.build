@@ -95,7 +95,6 @@ if build_jack_net
     'jack_net_master',
     sources: ['netmaster.c'],
     dependencies: [lib_jacknet],
-    include_directories: include_directories(dep_jack.get_variable('includedir')),
     install: true
   )
 
@@ -103,7 +102,6 @@ if build_jack_net
     'jack_net_slave',
     sources: ['netslave.c'],
     dependencies: [lib_jacknet],
-    include_directories: include_directories(dep_jack.get_variable('includedir')),
     install: true
   )
 endif
@@ -118,7 +116,6 @@ exe_jack_server_control = executable(
   c_args: c_args_jack_server_control,
   sources: ['server_control.c'],
   dependencies: [lib_jackserver],
-  include_directories: include_directories(dep_jack.get_variable('includedir')),
   install: true
 )
 
@@ -132,7 +129,7 @@ exe_jack_showtime = executable(
 exe_jack_simdtests = executable(
   'jack_simdtests',
   sources: ['simdtests.cpp'],
-  include_directories: ['../common', dep_jack.get_variable('includedir')],
+  include_directories: ['../common', include_directories_common],
   dependencies: [lib_m],
   install: true
 )
