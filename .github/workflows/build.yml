@@ -9,11 +9,12 @@ on:
     branches: [main]
 
 env:
-  JACK2_VERSION: v1.9.21
+  JACK2_VERSION: v1.9.22
+  MESON_LINUX_BUILD_OPTS: --prefix=/usr
   PAWPAW_CACHE_VERSION: 1
   PAWPAW_JACK2_NO_CUSTOM_PREFIX: 1
   PAWPAW_SKIP_LTO: 1
-  PAWPAW_VERSION: 01d07086586818e427b2898d2d446d30b68f3139
+  PAWPAW_VERSION: c630bae2e77c210c7e7a8c557215d85103813454
 
 jobs:
   build_arch_linux_jack1:
@@ -29,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: pacman --noconfirm -Syu alsa-lib base-devel jack meson opus readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
       - name: Build jack-example-tools
-        run: meson build && ninja -C build
+        run: meson build ${{ env.MESON_LINUX_BUILD_OPTS }} && ninja -C build
       - name: Install jack-example-tools
         run: ninja -C build install
   build_arch_linux_jack2:
@@ -41,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: pacman --noconfirm -Syu alsa-lib base-devel jack2 meson opus readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
       - name: Build jack-example-tools
-        run: meson build && ninja -C build
+        run: meson build ${{ env.MESON_LINUX_BUILD_OPTS }} && ninja -C build
       - name: Install jack-example-tools
         run: ninja -C build install
   build_arch_linux_pipewire_jack:
@@ -53,7 +54,7 @@ jobs:
       - name: Install dependencies
         run: pacman --noconfirm -Syu alsa-lib base-devel meson opus pipewire-jack readline libsamplerate libsndfile zita-alsa-pcmi zita-resampler
       - name: Build jack-example-tools
-        run: meson build && ninja -C build
+        run: meson build ${{ env.MESON_LINUX_BUILD_OPTS }} && ninja -C build
       - name: Install jack-example-tools
         run: ninja -C build install
   build_alpine_linux:
@@ -65,7 +66,7 @@ jobs:
       - name: Install dependencies
         run: apk add g++ meson pkgconf alsa-lib-dev jack-dev opus-dev readline-dev libsamplerate-dev libsndfile-dev
       - name: Build jack-example-tools
-        run: meson build && ninja -C build
+        run: meson build ${{ env.MESON_LINUX_BUILD_OPTS }} && ninja -C build
       - name: Install jack-example-tools
         run: ninja -C build install
   build_macos_latest:
