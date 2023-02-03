@@ -87,6 +87,7 @@ has_jack1_internal_client = cc.compiles(
   }
   ''',
   dependencies: [dep_jack],
+  include_directories: include_directories_common,
 )
 message('Provides jack1-style jack_internal_client_handle(): ' + has_jack1_internal_client.to_string())
 
@@ -107,6 +108,7 @@ has_jack2_internal_client = cc.compiles(
   }
   ''',
   dependencies: [dep_jack],
+  include_directories: include_directories_common,
 )
 message('Provides jack2-style jack_internal_client_handle(): ' + has_jack2_internal_client.to_string())
 
