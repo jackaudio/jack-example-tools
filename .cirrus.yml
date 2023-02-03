@@ -13,14 +13,12 @@ task:
     - pkg install -y jackit pkgconf python3 libsndfile libsamplerate libsysinfo readline alsa-lib dbus expat opus git
 
   prepare_script:
-    - mkdir /Install
+    - mkdir -p /Install/include
   dependencies_script:
     - pkg install -y pkgconf python3 libsndfile libsamplerate libsysinfo readline alsa-lib zita-alsa-pcmi zita-resampler opus meson ninja
   config_script:
     - meson --prefix /Install --mandir man --buildtype release --strip build
   build_script:
-    # Workaround for missing alloca headers - remove when resolved.
-    - touch build/tools/alloca.h
     - ninja -C build
   install_script:
     - DESTDIR="/Install" meson install -C build
