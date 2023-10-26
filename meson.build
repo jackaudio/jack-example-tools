@@ -10,7 +10,7 @@ os = build_machine.system()
 cc = meson.get_compiler('c')
 
 alsa_required = false
-if get_option('alsa_in_out').enabled() or get_option('zalsa').enabled()
+if get_option('alsa_in_out').enabled() or get_option('alsa_midi').enabled() or get_option('zalsa').enabled()
   alsa_required = true
 endif
 
@@ -144,6 +144,13 @@ if get_option('alsa_in_out').enabled() or (
   build_alsa_in_out = true
 endif
 
+build_alsa_midi = false
+if get_option('alsa_midi').enabled() or (
+  get_option('alsa_midi').auto() and dep_alsa.found() and has_jack2_internal_client
+)
+  build_alsa_midi = true
+endif
+
 build_jack_net = false
 if get_option('jack_net').enabled() or (get_option('jack_net').auto() and lib_jacknet_dep.found())
   build_jack_net = true
@@ -178,6 +185,7 @@ endif
 
 
 message('Build alsa_in and alsa_out executables: ' + build_alsa_in_out.to_string())
+message('Build alsa_midi internal client: ' + build_alsa_midi.to_string())
 message('Build jack_net_master and jack_net_slave executables: ' + build_jack_net.to_string())
 message('Build jack_netsource executable: ' + build_jack_netsource.to_string())
 if build_jack_netsource

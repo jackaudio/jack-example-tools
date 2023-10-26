@@ -1,4 +1,5 @@
 option('alsa_in_out', type: 'feature', value: 'auto', description: 'Build the alsa_in and alsa_out executables (default: auto)')
+option('alsa_midi', type: 'feature', value: 'auto', description: 'Build the alsa_midi internal client (default: auto)')
 option('jack_net', type: 'feature', value: 'auto', description: 'Build the jack_net_master and jack_net_slave executables (default: auto)')
 option('jack_netsource', type: 'feature', value: 'auto', description: 'Build the jack_netsource executable (default: auto)')
 option('jack_rec', type: 'feature', value: 'auto', description: 'Build the jack_rec executable (default: auto)')

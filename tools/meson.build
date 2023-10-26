@@ -198,6 +198,10 @@ exe_jack_wait = executable(
   install: true
 )
 
+if build_alsa_midi
+  subdir('alsa_midi')
+endif
+
 if build_zalsa
   subdir('zalsa')
 endif
