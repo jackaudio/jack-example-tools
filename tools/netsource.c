@@ -79,10 +79,9 @@ int latency = 5;
 jack_nframes_t kbps = 0;
 int bitdepth = 0;
 int mtu = 1400;
-int reply_port = 0;
-int bind_port = 0;
+int reply_port_num = 0;
 int redundancy = 1;
-jack_client_t *client;
+jack_client_t *client = NULL;
 packet_cache * packcache = 0;
 
 int state_connected = 0;
@@ -96,13 +95,8 @@ int quit = 0;
 
 int outsockfd;
 int insockfd;
-#ifdef WIN32
-struct sockaddr_in destaddr;
-struct sockaddr_in bindaddr;
-#else
-struct sockaddr destaddr;
-struct sockaddr bindaddr;
-#endif
+struct addrinfo *destaddr = NULL;
+struct addrinfo *bindaddr;
 
 int sync_state;
 jack_transport_state_t last_transport_state;
@@ -296,7 +290,7 @@ process (jack_nframes_t nframes, void *arg)
         pkthdr_tx->transport_frame = local_trans_pos.frame;
         pkthdr_tx->framecnt = framecnt;
         pkthdr_tx->latency = latency;
-        pkthdr_tx->reply_port = reply_port;
+        pkthdr_tx->reply_port = reply_port_num;
         pkthdr_tx->sample_rate = jack_get_sample_rate (client);
         pkthdr_tx->period_size = nframes;
 
@@ -316,7 +310,7 @@ process (jack_nframes_t nframes, void *arg)
         if (cont_miss < 3 * latency + 5) {
             int r;
             for( r = 0; r < redundancy; r++ )
-                netjack_sendto (outsockfd, (char *) packet_buf_tx, tx_bufsize, 0, &destaddr, sizeof (destaddr), mtu);
+                netjack_sendto (outsockfd, (char *) packet_buf_tx, tx_bufsize, 0, destaddr->ai_addr, sizeof (destaddr->ai_addr), mtu);
         } else if (cont_miss > 50 + 5 * latency) {
             state_connected = 0;
             packet_cache_reset_master_address( packcache );
@@ -331,7 +325,7 @@ process (jack_nframes_t nframes, void *arg)
      */
 
 
-    if( reply_port )
+    if( reply_port_num )
         input_fd = insockfd;
     else
         input_fd = outsockfd;
@@ -429,7 +423,7 @@ process (jack_nframes_t nframes, void *arg)
         pkthdr_tx->transport_frame = local_trans_pos.frame;
         pkthdr_tx->framecnt = framecnt;
         pkthdr_tx->latency = latency;
-        pkthdr_tx->reply_port = reply_port;
+        pkthdr_tx->reply_port = reply_port_num;
         pkthdr_tx->sample_rate = jack_get_sample_rate (client);
         pkthdr_tx->period_size = nframes;
 
@@ -449,7 +443,7 @@ process (jack_nframes_t nframes, void *arg)
         if (cont_miss < 3 * latency + 5) {
             int r;
             for( r = 0; r < redundancy; r++ )
-                netjack_sendto (outsockfd, (char *) packet_buf_tx, tx_bufsize, 0, &destaddr, sizeof (destaddr), mtu);
+                netjack_sendto (outsockfd, (char *) packet_buf_tx, tx_bufsize, 0, destaddr->ai_addr, sizeof (destaddr->ai_addr), mtu);
         } else if (cont_miss > 50 + 5 * latency) {
             state_connected = 0;
             packet_cache_reset_master_address( packcache );
@@ -473,27 +467,6 @@ jack_shutdown (void *arg)
 {
     fprintf(stderr, "JACK shut down, exiting ...\n");
     exit (1);
-}
-
-void
-init_sockaddr_in (struct sockaddr_in *name , const char *hostname , uint16_t port)
-{
-    name->sin_family = AF_INET ;
-    name->sin_port = htons (port);
-    if (hostname) {
-        struct hostent *hostinfo = gethostbyname (hostname);
-        if (hostinfo == NULL) {
-            fprintf (stderr, "init_sockaddr_in: unknown host: %s.\n", hostname);
-            fflush( stderr );
-        }
-#ifdef WIN32
-        name->sin_addr.s_addr = inet_addr( hostname );
-#else
-        name->sin_addr = *(struct in_addr *) hostinfo->h_addr ;
-#endif
-    } else
-        name->sin_addr.s_addr = htonl (INADDR_ANY) ;
-
 }
 
 void
@@ -532,7 +505,9 @@ main (int argc, char *argv[])
 {
     /* Some startup related basics */
     char *client_name, *server_name = NULL, *peer_ip;
-    int peer_port = 3000;
+    char *peer_port = NULL;
+    char *reply_port = NULL;
+    char *bind_port = NULL;
     jack_options_t options = JackNullOption;
     jack_status_t status;
 #ifdef WIN32
@@ -546,7 +521,8 @@ main (int argc, char *argv[])
     /* Argument parsing stuff */
     extern char *optarg;
     extern int optind, optopt;
-    int errflg = 0, c;
+    int errflg = 0, c, e, retval = 0;
+    struct addrinfo hints, *rp;
 
     if (argc < 3) {
         printUsage ();
@@ -585,13 +561,16 @@ main (int argc, char *argv[])
                 latency = atoi (optarg);
                 break;
             case 'p':
-                peer_port = atoi (optarg);
+                peer_port = malloc (strlen (optarg));
+                strcpy (peer_port, optarg);
                 break;
             case 'r':
-                reply_port = atoi (optarg);
+                reply_port = malloc (strlen (optarg));
+                strcpy (reply_port, optarg);
                 break;
             case 'B':
-                bind_port = atoi (optarg);
+                bind_port = malloc (strlen (optarg));
+                strcpy (bind_port, optarg);
                 break;
             case 'b':
                 bitdepth = atoi (optarg);
@@ -641,25 +620,90 @@ main (int argc, char *argv[])
     capture_channels = capture_channels_audio + capture_channels_midi;
     playback_channels = playback_channels_audio + playback_channels_midi;
 
-    outsockfd = socket (AF_INET, SOCK_DGRAM, 0);
-    insockfd = socket (AF_INET, SOCK_DGRAM, 0);
-
     if ((outsockfd == -1) || (insockfd == -1)) {
         fprintf (stderr, "can not open sockets\n" );
         return 1;
     }
 
-    init_sockaddr_in ((struct sockaddr_in *) &destaddr, peer_ip, peer_port);
+    memset(&hints, '\0', sizeof(hints));
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_ADDRCONFIG;
+
+    e = getaddrinfo (peer_ip, peer_port, &hints, &destaddr);
+    if (e) {
+        retval = 1;
+        fprintf (stderr, "getaddrinfo(\"%s\", \"%s\", ...) failed: %s\n", peer_ip, peer_port, gai_strerror (e));
+        goto cleanup;
+    }
+
     if (bind_port) {
-        init_sockaddr_in ((struct sockaddr_in *) &bindaddr, NULL, bind_port);
-        if( bind (outsockfd, &bindaddr, sizeof (bindaddr)) ) {
-            fprintf (stderr, "bind failure\n" );
+        e = getaddrinfo (NULL, bind_port, &hints, &bindaddr);
+        if (e) {
+            retval = 1;
+            fprintf (stderr, "getaddrinfo(NULL, \"%s\", ...) failed: %s\n", peer_port, gai_strerror (e));
+            goto cleanup;
+        }
+
+        for (rp = bindaddr; rp != NULL; rp = rp->ai_next) {
+            outsockfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+
+            if (outsockfd == -1) {
+                fprintf (stderr, "Can't open socket: %s", gai_strerror(errno));
+                continue;
+            }
+
+            if (bind (outsockfd, rp->ai_addr, rp->ai_addrlen) == 0) {
+                break;
+            }
+
+            close (outsockfd);
+        }
+
+        freeaddrinfo (bindaddr);
+
+        if (rp == NULL) {
+            /* No address succeeded */
+            retval = 1;
+            fprintf (stderr, "bind failure: %s\n", gai_strerror (errno));
+            goto cleanup;
         }
     }
+
     if (reply_port) {
-        init_sockaddr_in ((struct sockaddr_in *) &bindaddr, NULL, reply_port);
-        if( bind (insockfd, &bindaddr, sizeof (bindaddr)) ) {
-            fprintf (stderr, "bind failure\n" );
+        e = getaddrinfo (NULL, reply_port, &hints, &bindaddr);
+        if (e) {
+            retval = 1;
+            fprintf (stderr, "getaddrinfo(NULL, \"%s\", ...) failed: %s\n", peer_port, gai_strerror (e));
+            goto cleanup;
+        }
+
+        for (rp = bindaddr; rp != NULL; rp = rp->ai_next) {
+            insockfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+
+            if (outsockfd == -1) {
+                fprintf (stderr, "Can't open socket: %s", gai_strerror(errno));
+                continue;
+            }
+
+            if (bind (outsockfd, rp->ai_addr, rp->ai_addrlen) == 0) {
+                if (rp->ai_addr->sa_family == AF_INET) {
+                    reply_port_num = ntohs (((struct sockaddr_in *) rp->ai_addr)->sin_port);
+                } else if (rp->ai_addr->sa_family == AF_INET6) {
+                    reply_port_num = ntohs (((struct sockaddr_in6 *) rp->ai_addr)->sin6_port);
+                }
+                break;
+            }
+
+            close (insockfd);
+        }
+
+        freeaddrinfo (bindaddr);
+
+        if (rp == NULL) {
+            /* No address succeeded */
+            retval = 1;
+            fprintf (stderr, "bind failure: %s\n", gai_strerror (errno));
+            goto cleanup;
         }
     }
 
@@ -741,7 +785,15 @@ main (int argc, char *argv[])
         }
     }
 
-    jack_client_close (client);
-    packet_cache_free (packcache);
-    exit (0);
+cleanup:
+    if (destaddr) {
+        freeaddrinfo(destaddr);
+    }
+    if (client) {
+        jack_client_close (client);
+    }
+    if (packcache) {
+        packet_cache_free (packcache);
+    }
+    return retval;
 }
