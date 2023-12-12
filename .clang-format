@@ -1,0 +1,7 @@
+---
+BasedOnStyle:  WebKit
+AlignAfterOpenBracket: Align
+ColumnLimit: 120
+CompactNamespaces: true
+TabWidth: 4
+UseTab: ForIndentation
