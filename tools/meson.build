@@ -106,6 +106,22 @@ exe_jack_lsp = executable(
   install: true
 )
 
+exe_jack_lset = executable(
+  'jack_lset',
+  c_args: c_args_common,
+  sources: ['lset.c'],
+  dependencies: [dep_jack, lib_m],
+  install: true
+)
+
+exe_jack_lsync = executable(
+  'jack_lsync',
+  c_args: c_args_common,
+  sources: ['lsync.c'],
+  dependencies: [dep_jack, dep_threads, lib_m],
+  install: true
+)
+
 exe_jack_midi_dump = executable(
   'jack_midi_dump',
   sources: ['midi_dump.c'],
