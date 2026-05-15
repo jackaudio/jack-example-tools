@@ -287,8 +287,6 @@ public:
             delete this;
             return 1;
         }
-        if (rqual < 16) rqual = 16;
-        if (rqual > 96) rqual = 96;
         if ((fsamp < 8000) || (bsize < 16) || (nfrag < 2) || (nchan < 1))
         {
             jack_error (APPNAME ": Illegal parameter value(s).");
