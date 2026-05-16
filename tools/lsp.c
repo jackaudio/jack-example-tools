@@ -122,7 +122,8 @@ main (int argc, char *argv[])
 	while ((c = getopt_long (argc, argv, "s:AclLphvtuU", long_options, &option_index)) >= 0) {
 		switch (c) {
 		case 's':
-			server_name = (char *) malloc (sizeof (char) * strlen(optarg));
+			server_name = (char *) malloc (sizeof (char) * (strlen(optarg) + 1));
+			server_name[strlen(optarg)] = '\0';
 			strcpy (server_name, optarg);
 			options |= JackServerName;
 			break;
