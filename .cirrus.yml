@@ -1,8 +1,8 @@
 task:
   freebsd_instance:
     matrix:
-      - image_family: freebsd-13-2
-      - image_family: freebsd-14-0
+      - image_family: freebsd-13-3
+      - image_family: freebsd-14-1
 
   environment:
     CFLAGS: -O2 -pipe -fPIC -fstack-protector-strong -fno-strict-aliasing -I/usr/local/include
